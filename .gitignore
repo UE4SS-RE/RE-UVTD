@@ -17,6 +17,7 @@ VS_Solution/vendor/
 VS_Solution/Dependencies/
 Releases/
 **/Release/
+
 !external_deps/.gitkeep
 external_deps/DIA_SDK/
 
@@ -29,7 +30,14 @@ external_deps/DIA_SDK/
 *.lastbuildstate
 *.recipe
 *.vcxproj
+*.cmake
 
 *.filters
 
 *.sln
+
+.idea/
+
+CMakeCache.txt
+
+ZERO_CHECK.proj
