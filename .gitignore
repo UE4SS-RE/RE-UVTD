@@ -41,3 +41,5 @@ external_deps/DIA_SDK/
 CMakeCache.txt
 
 ZERO_CHECK.proj
+
+Debug/
