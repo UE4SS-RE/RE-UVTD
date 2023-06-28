@@ -63,10 +63,10 @@ namespace RC::UVTD
             {STR("UMulticastDelegateProperty"), ValidForVTable::Yes, ValidForMemberVars::Yes},
             {STR("FObjectPropertyBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},
             {STR("UObjectPropertyBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            /*{STR("FConsoleManager"), ValidForVTable::Yes, ValidForMemberVars::Yes},
+            {STR("FConsoleManager"), ValidForVTable::Yes, ValidForMemberVars::Yes},
             {STR("UDataTable"), ValidForVTable::Yes, ValidForMemberVars::Yes},
             {STR("FConsoleVariableBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FConsoleCommandBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},*/
+            {STR("FConsoleCommandBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},
 
             {STR("UScriptStruct"), ValidForVTable::No, ValidForMemberVars::Yes},
             {STR("UWorld"), ValidForVTable::No, ValidForMemberVars::Yes},
@@ -155,6 +155,10 @@ namespace RC::UVTD
             STR("FFieldPathProperty"),
             STR("FSetProperty"),
             STR("USetProperty"),
+            STR("FConsoleManager"),
+            STR("UDataTable"),
+            STR("FConsoleVariableBase"),
+            STR("FConsoleCommandBase"),
     };
 
     static std::vector<File::StringType> UPrefixToFPrefix{
@@ -244,18 +248,22 @@ namespace RC::UVTD
             type_name.find(STR("FScriptMapLayout")) != type_name.npos ||
             type_name.find(STR("EArrayPropertyFlags")) != type_name.npos ||
             type_name.find(STR("ICppClassTypeInfo")) != type_name.npos ||
-            type_name.find(STR("FDefaultSetAllocator")) != type_name.npos ||
-            type_name.find(STR("TDefaultMapKeyFuncs")) != type_name.npos ||
+            /*type_name.find(STR("FDefaultSetAllocator")) != type_name.npos ||
+            type_name.find(STR("TDefaultMapKeyFuncs")) != type_name.npos ||*/
             type_name.find(STR("FNativeFunctionLookup")) != type_name.npos ||
             type_name.find(STR("FGCReferenceTokenStream")) != type_name.npos ||
             type_name.find(STR("FWindowsCriticalSection")) != type_name.npos ||
-            type_name.find(STR("TDefaultMapHashableKeyFuncs")) != type_name.npos ||
+            /*type_name.find(STR("TDefaultMapHashableKeyFuncs")) != type_name.npos ||*/
             type_name.find(STR("FWindowsRWLock")) != type_name.npos ||
             type_name.find(STR("FRepRecord")) != type_name.npos ||
             type_name.find(STR("EClassCastFlags")) != type_name.npos ||
             type_name.find(STR("FAudioDeviceHandle")) != type_name.npos ||
             type_name.find(STR("TVector")) != type_name.npos ||
-            type_name.find(STR("FScriptSetLayout")) != type_name.npos
+            type_name.find(STR("FScriptSetLayout")) != type_name.npos ||
+            type_name.find(STR("FArchiveCookData")) != type_name.npos ||
+            type_name.find(STR("FFastPathLoadBuffer")) != type_name.npos ||
+            type_name.find(STR("FArchiveSerializedPropertyChain")) != type_name.npos ||
+            type_name.find(STR("FTokenStreamOwner")) != type_name.npos
             )        
         {
             
@@ -586,13 +594,13 @@ namespace RC::UVTD
         else
         {
             BSTR name_buffer;
+            BSTR undecorated_name_buffer;
             if (auto hr = symbol->get_name(&name_buffer); hr == S_OK)
             {
                 name = name_buffer;
                 SysFreeString(name_buffer);
             }
-
-            BSTR undecorated_name_buffer;
+            else
             if (auto hr = symbol->get_undecoratedName(&undecorated_name_buffer); hr == S_OK)
             {
                 name = undecorated_name_buffer;
