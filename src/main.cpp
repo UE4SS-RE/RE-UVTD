@@ -64,30 +64,31 @@ auto thread_dll_start([[maybe_unused]]LPVOID thread_param) -> unsigned long
             else if (selection == 1)
             {
                 Output::send(STR("Generating VTable layouts...\n"));
-                UVTD::main(UVTD::VTableOrMemberVars::VTable);
+                UVTD::main(UVTD::DumpMode::VTable);
             }
             else if (selection == 2)
             {
                 Output::send(STR("Generating class/struct member variable layouts...\n"));
-                UVTD::main(UVTD::VTableOrMemberVars::MemberVars);
+                UVTD::main(UVTD::DumpMode::MemberVars);
             }
             else if (selection == 3)
             {
                 Output::send(STR("Generating sol bindings...\n"));
-                UVTD::main(UVTD::VTableOrMemberVars::SolBindings);
+                UVTD::main(UVTD::DumpMode::SolBindings);
             }
             else if (selection == 4)
             {
                 Output::send(STR("Generating VTable layouts...\n"));
-                UVTD::main(UVTD::VTableOrMemberVars::VTable);
+                UVTD::main(UVTD::DumpMode::VTable);
 
                 Output::send(STR("Generating class/struct member variable layouts...\n"));
-                UVTD::main(UVTD::VTableOrMemberVars::MemberVars);
+                UVTD::main(UVTD::DumpMode::MemberVars);
             }
             else if (selection == 9)
             {
                 // Reserved for NOP, ask user again.
             }
+            break;
         }
     }
     catch (std::exception& e)

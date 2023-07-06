@@ -30,6 +30,9 @@ namespace RC::File
 
     private:
         HANDLE m_file{};
+        HANDLE m_map_handle{};
+        uint8_t* m_memory_map{};
+        OpenProperties m_open_properties{};
         std::filesystem::path m_file_path_and_name{};
         std::filesystem::path m_serialization_file_path_and_name{};
         IdentifyingProperties m_identifying_properties{};
@@ -39,9 +42,6 @@ namespace RC::File
         bool m_has_cache_in_memory{};
         bool m_has_cached_identifying_properties{};
         bool m_is_file_open{};
-
-    public:
-        ~WinFile() override = default;
 
     private:
         auto static create_all_directories(const std::filesystem::path& file_name_and_path) -> void;
@@ -76,6 +76,7 @@ namespace RC::File
         RC_FILE_API auto write_string_to_file(StringViewType string_to_write) -> void override;
         RC_FILE_API auto is_same_as(WinFile& other_file) -> bool override;
         [[nodiscard]] RC_FILE_API auto read_all() const -> StringType override;
+        [[nodiscard]] RC_FILE_API auto memory_map() -> std::span<uint8_t> override;
         [[nodiscard]] RC_FILE_API auto static open_file(const std::filesystem::path& file_name_and_path, const OpenProperties& open_properties) -> WinFile;
         // File Interface -> END
     };

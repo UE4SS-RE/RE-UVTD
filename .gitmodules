@@ -1,0 +1,3 @@
+[submodule "Dependencies/raw_pdb"]
+	path = Dependencies/raw_pdb
+	url = git@github.com:localcc/raw_pdb.git
