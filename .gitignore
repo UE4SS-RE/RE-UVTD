@@ -43,3 +43,6 @@ CMakeCache.txt
 ZERO_CHECK.proj
 
 Debug/
+
+**/GeneratedVTables/**
+MacroSetter.hpp
