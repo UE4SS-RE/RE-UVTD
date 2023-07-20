@@ -166,7 +166,7 @@ namespace RC::UVTD
         for (ObjectItem& item : s_object_items)
         {
             if (!item.ValidForMemberVar) continue;
-            member_vars_names.emplace(item.ObjectName, SymbolNameInfo{ item.ValidForVTable, item.ValidForMemberVar });
+            member_vars_names.emplace(to_wstring(item.ObjectName), SymbolNameInfo{ item.ValidForVTable, item.ValidForMemberVar });
         }
 
         dump_member_variable_layouts(member_vars_names);

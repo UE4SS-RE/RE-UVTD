@@ -165,7 +165,7 @@ namespace RC::UVTD
         {
             if (!object_item.ValidForVTable) continue;
             
-            vtable_names.emplace(object_item.ObjectName, SymbolNameInfo{ object_item.ValidForVTable, object_item.ValidForMemberVar });
+            vtable_names.emplace(to_wstring(object_item.ObjectName), SymbolNameInfo{ object_item.ValidForVTable, object_item.ValidForMemberVar });
         }
 
         dump_vtable_for_symbol(vtable_names);

@@ -55,18 +55,8 @@ namespace RC::UVTD
             if (pe)
             {
                 std::string descriptive_error = glz::format_error(pe, buffer);
-
-                size_t count = descriptive_error.size() + 1;
-                wchar_t* converted_method_name = new wchar_t[count];
-
-                size_t num_of_char_converted = 0;
-                mbstowcs_s(&num_of_char_converted, converted_method_name, count, descriptive_error.data(), count);
-
-                auto converted = File::StringViewType(converted_method_name);
-
-                delete[] converted_method_name;
                 
-                Output::send<LogLevel::Error>(STR("{}\n\nError parsing settings file, please fix the file.\n"), converted);
+                Output::send<LogLevel::Error>(STR("{}\n\nError parsing settings file, please fix the file.\n"),  to_wstring(descriptive_error));
             }
             Output::send<LogLevel::Default>(STR("Settings read.\n"));
         }
@@ -79,17 +69,8 @@ namespace RC::UVTD
                 auto arr = glz::detail::make_enum_to_string_array<glz::error_code>();
                 auto error_type_str = arr[static_cast<uint32_t>(ec)];
                 
-                size_t count = error_type_str.size() + 1;
-                wchar_t* converted_method_name = new wchar_t[count];
-
-                size_t num_of_char_converted = 0;
-                mbstowcs_s(&num_of_char_converted, converted_method_name, count, error_type_str.data(), count);
-
-                auto converted = File::StringViewType(converted_method_name);
-
-                delete[] converted_method_name;
                 
-                Output::send<LogLevel::Error>(STR("\nError {} when writing new settings file.\n"), converted);
+                Output::send<LogLevel::Error>(STR("\nError {} when writing new settings file.\n"), to_wstring(error_type_str));
             }
             Output::send<LogLevel::Default>(STR("Settings created. Please close the program and add settings options.\n"));
         }   
