@@ -11,7 +11,7 @@
 
 
 #if RC_IS_ANSI == 1
-#define STR(str) u##str
+#define STR(str) str
 #else
 #define STR(str) L##str
 #endif
@@ -44,7 +44,6 @@ namespace RC::File
     using StringViewType = std::string_view;
     using CharType = char;
     using StreamType = std::ifstream;
-    using ToString = std::tostring;
 
     constexpr auto ToString = [](auto&& numeric_value) constexpr -> decltype(auto) { return std::to_string(std::forward<decltype(numeric_value)>(numeric_value)); };
 #else

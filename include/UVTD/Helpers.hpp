@@ -113,6 +113,188 @@ namespace RC::UVTD
             {("FSetProperty"), false, true },
             {("USetProperty"), false, true },
     };
+        
+
+    static std::unordered_set<std::string> NonCasePreservingVariantsList{
+            { "4_27" },
+    };
+
+    static std::unordered_set<std::string> CasePreservingVariantsList{
+            { "4_27_CasePreserving" },
+    };
+
+    
+
+    static inline std::unordered_set<std::string> valid_udt_names{
+            ("UScriptStruct::ICppStructOps"),
+            ("UObjectBase"),
+            ("UObjectBaseUtility"),
+            ("UObject"),
+            ("UStruct"),
+            ("UGameViewportClient"),
+            ("UScriptStruct"),
+            ("FOutputDevice"),
+            //("UConsole"),
+            ("FMalloc"),
+            ("FArchive"),
+            ("FArchiveState"),
+            ("AGameModeBase"),
+            ("AGameMode"),
+            ("AActor"),
+            ("AHUD"),
+            ("UPlayer"),
+            ("ULocalPlayer"),
+            ("FExec"),
+            ("UField"),
+            ("FField"),
+            ("FProperty"),
+            ("UProperty"),
+            ("FNumericProperty"),
+            ("UNumericProperty"),
+            ("FMulticastDelegateProperty"),
+            ("UMulticastDelegateProperty"),
+            ("FObjectPropertyBase"),
+            ("UObjectPropertyBase"),
+            ("UStructProperty"),
+            ("FStructProperty"),
+            ("UArrayProperty"),
+            ("FArrayProperty"),
+            ("UMapProperty"),
+            ("FMapProperty"),
+            ("UWorld"),
+            ("UFunction"),
+            ("FBoolProperty"),
+            ("UClass"),
+            ("UEnum"),
+            ("UBoolProperty"),
+            ("FByteProperty"),
+            ("UByteProperty"),
+            ("FEnumProperty"),
+            ("UEnumProperty"),
+            ("FClassProperty"),
+            ("UClassProperty"),
+            ("FSoftClassProperty"),
+            ("USoftClassProperty"),
+            ("FDelegateProperty"),
+            ("UDelegateProperty"),
+            ("FInterfaceProperty"),
+            ("UInterfaceProperty"),
+            ("FFieldPathProperty"),
+            ("FSetProperty"),
+            ("USetProperty"),
+    };
+
+        static inline std::vector<std::string> s_types_to_not_dump{
+        ("FUnversionedStructSchema"),
+        ("ELifetimeCondition"),
+        ("UAISystemBase"),
+        ("FLevelCollection"),
+        ("FThreadSafeCounter"),
+        ("FWorldAsyncTraceState"),
+        ("FDelegateHandle"),
+        ("UAvoidanceManager"),
+        ("FOnBeginTearingDownEvent"),
+        ("UBlueprint"),
+        ("UCanvas"),
+        ("UActorComponent"),
+        ("AController"),
+        ("ULevel"),
+        ("FPhysScene_Chaos"),
+        ("APhysicsVolume"),
+        ("UDemoNetDriver"),
+        ("FEndPhysicsTickFunction"),
+        ("FFXSystemInterface"),
+        ("ERHIFeatureLevel"),
+        ("EFlushLevelStreamingType"),
+        ("ULineBatchComponent"),
+        ("AGameState"),
+        ("FOnGameStateSetEvent"),
+        ("AAudioVolume"),
+        ("FLatentActionManager"),
+        ("FOnLevelsChangedEvent"),
+        ("AParticleEventManager"),
+        ("UNavigationSystem"),
+        ("UNetDriver"),
+        ("AGameNetworkManager"),
+        ("ETravelType"),
+        ("FDefaultDelegateUserPolicy"),
+        ("TMulticastDelegate"),
+        ("FActorsInitializedParams"),
+        ("FOnBeginPostProcessSettings"),
+        ("FIntVector"),
+        ("FWorldPSCPool"),
+        ("UMaterialParameterCollectionInstance"),
+        ("FParticlePerfStats"),
+        ("FWorldInGamePerformanceTrackers"),
+        ("UPhysicsCollisionHandler"),
+        ("UPhysicsFieldComponent"),
+        ("FPhysScene"),
+        ("APlayerController"),
+        ("IInterface_PostProcessVolume"),
+        ("FOnTickFlushEvent"),
+        ("FSceneInterface"),
+        ("FStartAsyncSimulationFunction"),
+        ("FStartPhysicsTickFunction"),
+        ("FOnNetTickEvent"),
+        ("ETickingGroup"),
+        ("FTickTaskLevel"),
+        ("FTimerManager"),
+        ("FURL"),
+        ("UWorldComposition"),
+        ("EWorldType"),
+        ("FSubsystemCollection"),
+        ("UWorldSubsystem"),
+        ("FStreamingLevelsToConsider"),
+        ("ACameraActor"),
+        ("EMapPropertyFlags"),
+        ("FScriptMapLayout"),
+        ("EArrayPropertyFlags"),
+        ("ICppClassTypeInfo"),
+        ("FNativeFunctionLookup"),
+        ("FGCReferenceTokenStream"),
+        ("FWindowsCriticalSection"),
+        ("FWindowsRWLock"),
+        ("FRepRecord"),
+        ("EClassCastFlags"),
+        ("FAudioDeviceHandle"),
+        ("TVector"),
+        ("FScriptSetLayout"),
+        ("FArchiveSerializedPropertyChain"),
+        ("FArchiveCookData"),
+        ("FFastPathLoadBuffer"),
+        ("FTokenStreamOwner")
+    };
+        
+
+    static inline std::vector<std::string> uprefix_to_fprefix{
+            ("UProperty"),
+            ("UMulticastDelegateProperty"),
+            ("UObjectPropertyBase"),
+            ("UStructProperty"),
+            ("UArrayProperty"),
+            ("UMapProperty"),
+            ("UBoolProperty"),
+            ("UByteProperty"),
+            ("UNumericProperty"),
+            ("UEnumProperty"),
+            ("UClassProperty"),
+            ("USoftClassProperty"),
+            ("UDelegateProperty"),
+            ("UInterfaceProperty"),
+            ("USetProperty"),
+    };
+
+    static inline std::unordered_map<std::string, std::unordered_set<std::string>> s_private_variables{
+        {
+            ("FField"),
+            {
+                    ("ClassPrivate"),
+                    ("NamePrivate"),
+                    ("Next"),
+                    ("Owner"),
+            }
+        },
+    };
 
         class SettingsManager
         {
@@ -120,133 +302,20 @@ namespace RC::UVTD
                 struct UVTDSettings
                 {
                         std::vector<ObjectItem> ObjectsToDump = s_object_items;
-                        /*std::unordered_set<File::StringType> ValidUDTNames{};
-                        std::vector<File::StringType> TypesToSkip{};
-                        std::unordered_map<File::StringType, std::unordered_set<File::StringType>> PrivateVariables{};
-                        std::vector<File::StringType> UPrefixToFPrefix{};*/
+                        std::unordered_set<std::string> ValidUDTNames = valid_udt_names;
+                        std::vector<std::string> TypesToSkip = RC::UVTD::s_types_to_not_dump;
+                        std::unordered_map<std::string, std::unordered_set<std::string>> PrivateVariables = s_private_variables;
+                        std::vector<std::string> UPrefixToFPrefix = uprefix_to_fprefix;
+                        std::unordered_set<std::string> CasePreservingVariants = CasePreservingVariantsList;
+                        std::unordered_set<std::string> NonCasePreservingVariants = NonCasePreservingVariantsList;
                 };
 
                 static void Read_Settings();
 
         };
 
-    static inline std::unordered_map<File::StringType, std::unordered_set<File::StringType>> s_private_variables{
-            {
-                    STR("FField"),
-                    {
-                            STR("ClassPrivate"),
-                            STR("NamePrivate"),
-                            STR("Next"),
-                            STR("Owner"),
-                    }
-            },
-    };
-
-    static std::unordered_set<File::StringType> NonCasePreservingVariants{
-            {STR("4_27")},
-    };
-
-    static std::unordered_set<File::StringType> CasePreservingVariants{
-            {STR("4_27_CasePreserving")},
-    };
-
-    static inline std::vector<File::StringType> UPrefixToFPrefix{
-            STR("UProperty"),
-            STR("UMulticastDelegateProperty"),
-            STR("UObjectPropertyBase"),
-            STR("UStructProperty"),
-            STR("UArrayProperty"),
-            STR("UMapProperty"),
-            STR("UBoolProperty"),
-            STR("UByteProperty"),
-            STR("UNumericProperty"),
-            STR("UEnumProperty"),
-            STR("UClassProperty"),
-            STR("USoftClassProperty"),
-            STR("UDelegateProperty"),
-            STR("UInterfaceProperty"),
-            STR("USetProperty"),
-    };
-
-    static inline std::unordered_set<File::StringType> valid_udt_names{
-            STR("UScriptStruct::ICppStructOps"),
-            STR("UObjectBase"),
-            STR("UObjectBaseUtility"),
-            STR("UObject"),
-            STR("UStruct"),
-            STR("UGameViewportClient"),
-            STR("UScriptStruct"),
-            STR("FOutputDevice"),
-            //STR("UConsole"),
-            STR("FMalloc"),
-            STR("FArchive"),
-            STR("FArchiveState"),
-            STR("AGameModeBase"),
-            STR("AGameMode"),
-            STR("AActor"),
-            STR("AHUD"),
-            STR("UPlayer"),
-            STR("ULocalPlayer"),
-            STR("FExec"),
-            STR("UField"),
-            STR("FField"),
-            STR("FProperty"),
-            STR("UProperty"),
-            STR("FNumericProperty"),
-            STR("UNumericProperty"),
-            STR("FMulticastDelegateProperty"),
-            STR("UMulticastDelegateProperty"),
-            STR("FObjectPropertyBase"),
-            STR("UObjectPropertyBase"),
-            STR("UStructProperty"),
-            STR("FStructProperty"),
-            STR("UArrayProperty"),
-            STR("FArrayProperty"),
-            STR("UMapProperty"),
-            STR("FMapProperty"),
-            STR("UWorld"),
-            STR("UFunction"),
-            STR("FBoolProperty"),
-            STR("UClass"),
-            STR("UEnum"),
-            STR("UBoolProperty"),
-            STR("FByteProperty"),
-            STR("UByteProperty"),
-            STR("FEnumProperty"),
-            STR("UEnumProperty"),
-            STR("FClassProperty"),
-            STR("UClassProperty"),
-            STR("FSoftClassProperty"),
-            STR("USoftClassProperty"),
-            STR("FDelegateProperty"),
-            STR("UDelegateProperty"),
-            STR("FInterfaceProperty"),
-            STR("UInterfaceProperty"),
-            STR("FFieldPathProperty"),
-            STR("FSetProperty"),
-            STR("USetProperty"),
-    };
-
-    static inline std::vector<File::StringType> uprefix_to_fprefix{
-            STR("UProperty"),
-            STR("UMulticastDelegateProperty"),
-            STR("UObjectPropertyBase"),
-            STR("UStructProperty"),
-            STR("UArrayProperty"),
-            STR("UMapProperty"),
-            STR("UBoolProperty"),
-            STR("UByteProperty"),
-            STR("UNumericProperty"),
-            STR("UEnumProperty"),
-            STR("UClassProperty"),
-            STR("USoftClassProperty"),
-            STR("UDelegateProperty"),
-            STR("UInterfaceProperty"),
-            STR("USetProperty"),
-    };
-
     auto to_string_type(const char* c_str) -> File::StringType;
-    auto change_prefix(File::StringType input, bool is_425_plus) -> std::optional<File::StringType>;
+    auto change_prefix(std::string input, bool is_425_plus) -> std::optional<std::string>;
 }
 
 template <>

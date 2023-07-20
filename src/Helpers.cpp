@@ -25,14 +25,14 @@ namespace RC::UVTD
 #endif
     }
 
-    auto change_prefix(File::StringType input, bool is_425_plus) -> std::optional<File::StringType>
+    auto change_prefix(std::string input, bool is_425_plus) -> std::optional<std::string>
     {
         for (const auto& prefixed : uprefix_to_fprefix)
         {
             for (size_t index = input.find(prefixed); index != input.npos; index = input.find(prefixed))
             {
                 if (is_425_plus) return {};
-                input.replace(index, 1, STR("F"));
+                input.replace(index, 1, ("F"));
                 index++;
             }
         }
@@ -56,7 +56,7 @@ namespace RC::UVTD
             {
                 std::string descriptive_error = glz::format_error(pe, buffer);
                 
-                Output::send<LogLevel::Error>(STR("{}\n\nError parsing settings file, please fix the file.\n"),  to_wstring(descriptive_error));
+                Output::send<LogLevel::Error>(STR("{}\n\nError parsing settings file, please fix the file.\n"),  descriptive_error);
             }
             Output::send<LogLevel::Default>(STR("Settings read.\n"));
         }
@@ -70,7 +70,7 @@ namespace RC::UVTD
                 auto error_type_str = arr[static_cast<uint32_t>(ec)];
                 
                 
-                Output::send<LogLevel::Error>(STR("\nError {} when writing new settings file.\n"), to_wstring(error_type_str));
+                Output::send<LogLevel::Error>(STR("\nError {} when writing new settings file.\n"), error_type_str);
             }
             Output::send<LogLevel::Default>(STR("Settings created. Please close the program and add settings options.\n"));
         }   

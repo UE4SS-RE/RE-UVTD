@@ -2,6 +2,7 @@
 #include <UVTD/VTableDumper.hpp>
 #include <UVTD/MemberVarsDumper.hpp>
 #include <DynamicOutput/DynamicOutput.hpp>
+#include <Helpers/String.hpp>
 
 namespace RC::UVTD
 {
@@ -22,13 +23,13 @@ namespace RC::UVTD
 
             auto final_class_name_clean = class_entry.class_name_clean;
             // Skipping UObject/UObjectBase because it needs to be manually implemented.
-            if (final_class_name_clean == STR("UObjectBase")) continue;
+            if (final_class_name_clean == ("UObjectBase")) continue;
 
             auto final_class_name = class_name;
 
-            auto wrapper_header_file = sol_bindings_output_path / std::format(STR("SolBindings_{}.hpp"), final_class_name_clean);
+            auto wrapper_header_file = (sol_bindings_output_path / std::format(("SolBindings_{}.hpp"), final_class_name_clean)).string();
             
-            Output::send(STR("Generating file '{}'\n"), wrapper_header_file.wstring());
+            Output::send("Generating file '{}'\n", wrapper_header_file);
 
             Output::Targets<Output::NewFileDevice> header_wrapper_dumper;
 
@@ -42,18 +43,18 @@ namespace RC::UVTD
 
             for (const auto& [variable_name, variable] : class_entry.variables)
             {
-                if (variable.type.find(STR("TBaseDelegate")) != variable.type.npos) { continue; }
-                if (variable.type.find(STR("FUniqueNetIdRepl")) != variable.type.npos) { continue; }
-                if (variable.type.find(STR("FPlatformUserId")) != variable.type.npos) { continue; }
-                if (variable.type.find(STR("FVector2D")) != variable.type.npos) { continue; }
-                if (variable.type.find(STR("FReply")) != variable.type.npos) { continue; }
-                if (variable.type.find(STR("FUObjectCppClassStaticFunctions")) != variable.type.npos) { continue; }
+                if (variable.type.find(("TBaseDelegate")) != variable.type.npos) { continue; }
+                if (variable.type.find(("FUniqueNetIdRepl")) != variable.type.npos) { continue; }
+                if (variable.type.find(("FPlatformUserId")) != variable.type.npos) { continue; }
+                if (variable.type.find(("FVector2D")) != variable.type.npos) { continue; }
+                if (variable.type.find(("FReply")) != variable.type.npos) { continue; }
+                if (variable.type.find(("FUObjectCppClassStaticFunctions")) != variable.type.npos) { continue; }
 
-                File::StringType final_variable_name = variable.name;
+                std::string final_variable_name = variable.name;
 
-                if (variable.name == STR("EnumFlags"))
+                if (variable.name == ("EnumFlags"))
                 {
-                    final_variable_name = STR("EnumFlags_Internal");
+                    final_variable_name = ("EnumFlags_Internal");
                 }
 
                 header_wrapper_dumper.send(STR(",\n    \"Get{}\", static_cast<{}&({}::*)()>(&{}::Get{})"), final_variable_name, variable.type, final_class_name, final_class_name, final_variable_name);
@@ -69,7 +70,7 @@ namespace RC::UVTD
             for (const auto& item : std::filesystem::directory_iterator(sol_bindings_output_path))
             {
                 if (item.is_directory()) { continue; }
-                if (item.path().extension() != STR(".hpp") && item.path().extension() != STR(".cpp")) { continue; }
+                if (item.path().extension() != (".hpp") && item.path().extension() != (".cpp")) { continue; }
 
                 File::delete_file(item.path());
             }

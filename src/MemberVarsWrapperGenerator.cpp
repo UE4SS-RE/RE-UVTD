@@ -8,9 +8,9 @@ namespace RC::UVTD
 {
     auto MemberVarsWrapperGenerator::generate_files() -> void
     {
-        auto macro_setter_file = std::filesystem::path{ STR("MacroSetter.hpp") };
+        auto macro_setter_file = std::filesystem::path{ STR("MacroSetter.hpp") }.string();
 
-        Output::send(STR("Generating file '{}'\n"), macro_setter_file.wstring());
+        Output::send(STR("Generating file '{}'\n"), macro_setter_file);
 
         Output::Targets<Output::NewFileDevice> macro_setter_dumper;
         auto& macro_setter_file_device = macro_setter_dumper.get_device<Output::NewFileDevice>();
@@ -23,9 +23,9 @@ namespace RC::UVTD
         {
             if (class_entry.variables.empty()) { continue; }
 
-            auto wrapper_header_file = member_variable_layouts_gen_output_include_path / std::format(STR("MemberVariableLayout_HeaderWrapper_{}.hpp"), class_entry.class_name_clean);
+            auto wrapper_header_file = (member_variable_layouts_gen_output_include_path / std::format("MemberVariableLayout_HeaderWrapper_{}.hpp", class_entry.class_name_clean)).string();
 
-            Output::send(STR("Generating file '{}'\n"), wrapper_header_file.wstring());
+            Output::send(STR("Generating file '{}'\n"), wrapper_header_file);
 
             Output::Targets<Output::NewFileDevice> header_wrapper_dumper;
             auto& wrapper_header_file_device = header_wrapper_dumper.get_device<Output::NewFileDevice>();
@@ -34,15 +34,15 @@ namespace RC::UVTD
                 return File::StringType{ string };
                 });
 
-            auto wrapper_src_file = member_variable_layouts_gen_output_include_path / std::format(STR("MemberVariableLayout_SrcWrapper_{}.hpp"), class_entry.class_name_clean);
+            auto wrapper_src_file = (member_variable_layouts_gen_output_include_path / std::format("MemberVariableLayout_SrcWrapper_{}.hpp", class_entry.class_name_clean)).string();
 
-            Output::send(STR("Generating file '{}'\n"), wrapper_src_file.wstring());
+            Output::send(STR("Generating file '{}'\n"), wrapper_src_file);
 
             Output::Targets<Output::NewFileDevice> wrapper_src_dumper;
             auto& wrapper_src_file_device = wrapper_src_dumper.get_device<Output::NewFileDevice>();
             wrapper_src_file_device.set_file_name_and_path(wrapper_src_file);
             wrapper_src_file_device.set_formatter([](File::StringViewType string) {
-                return File::StringType{ string };
+                return std::string{ string };
                 });
 
             header_wrapper_dumper.send(STR("static std::unordered_map<File::StringType, int32_t> MemberOffsets;\n\n"));
@@ -52,20 +52,20 @@ namespace RC::UVTD
 
             for (const auto& [variable_name, variable] : class_entry.variables)
             {
-                if (variable.type.find(STR("TBaseDelegate")) != variable.type.npos) { continue; }
-                if (variable.type.find(STR("FUniqueNetIdRepl")) != variable.type.npos) { continue; }
-                if (variable.type.find(STR("FPlatformUserId")) != variable.type.npos) { continue; }
-                if (variable.type.find(STR("FVector2D")) != variable.type.npos) { continue; }
-                if (variable.type.find(STR("FReply")) != variable.type.npos) { continue; }
+                if (variable.type.find("TBaseDelegate") != variable.type.npos) { continue; }
+                if (variable.type.find("FUniqueNetIdRepl") != variable.type.npos) { continue; }
+                if (variable.type.find("FPlatformUserId") != variable.type.npos) { continue; }
+                if (variable.type.find("FVector2D") != variable.type.npos) { continue; }
+                if (variable.type.find("FReply") != variable.type.npos) { continue; }
 
                 bool is_private{ private_variables_for_class != s_private_variables.end() && private_variables_for_class->second.find(variable.name) != private_variables_for_class->second.end() };
 
-                File::StringType final_variable_name = variable.name;
-                File::StringType final_type_name = variable.type;
+                std::string final_variable_name = variable.name;
+                std::string final_type_name = variable.type;
 
-                if (variable.name == STR("EnumFlags"))
+                if (variable.name == "EnumFlags")
                 {
-                    final_variable_name = STR("EnumFlags_Internal");
+                    final_variable_name = "EnumFlags_Internal";
                     is_private = true;
                 }
 
@@ -81,7 +81,7 @@ namespace RC::UVTD
                 header_wrapper_dumper.send(STR("    {}& Get{}();\n"), variable.type, final_variable_name);
                 header_wrapper_dumper.send(STR("    const {}& Get{}() const;\n\n"), variable.type, final_variable_name);
                 wrapper_src_dumper.send(STR("{}& {}::Get{}()\n"), variable.type, class_entry.class_name, final_variable_name);
-                if (class_entry.class_name == STR("FArchive") || class_entry.class_name == STR("FArchiveState"))
+                if (class_entry.class_name == "FArchive" || class_entry.class_name == "FArchiveState")
                 {
                     wrapper_src_dumper.send(STR("{\n"));
                     wrapper_src_dumper.send(STR("    static auto& offsets = Version::IsBelow(4, 25) ? FArchive::MemberOffsets : FArchiveState::MemberOffsets;\n"));

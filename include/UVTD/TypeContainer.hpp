@@ -11,7 +11,7 @@ namespace RC::UVTD
     class TypeContainer
     {
     private:
-        using ClassEntries = std::unordered_map<File::StringType, Class>;
+        using ClassEntries = std::unordered_map<std::string, Class>;
 
         ClassEntries class_entries;
 
@@ -22,7 +22,7 @@ namespace RC::UVTD
         constexpr auto get_class_entries() const -> const ClassEntries& { return class_entries; }
 
     public:
-        auto get_or_create_class_entry(const File::StringType& symbol_name, const File::StringType& symbol_name_clean, const SymbolNameInfo& name_info) -> Class&;
+        auto get_or_create_class_entry(const std::string& symbol_name, const std::string& symbol_name_clean, const SymbolNameInfo& name_info) -> Class&;
     };
 }
 

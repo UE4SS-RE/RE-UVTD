@@ -30,45 +30,45 @@ namespace RC::UVTD
 
     struct MemberVariable
     {
-        File::StringType type;
-        File::StringType name;
+        std::string type;
+        std::string name;
         int32_t offset;
     };
 
     struct FunctionParam
     {
-        File::StringType type;
+        std::string type;
 
-        auto to_string() const -> File::StringType
+        auto to_string() const -> std::string
         {
-            return std::format(STR("{}"), type);
+            return std::format(("{}"), type);
         }
     };
 
     struct MethodSignature
     {
-        File::StringType return_type;
-        File::StringType name;
+        std::string return_type;
+        std::string name;
         std::vector<FunctionParam> params;
         bool const_qualifier;
 
-        auto to_string() const -> File::StringType
+        auto to_string() const -> std::string
         {
-            File::StringType params_string{};
+            std::string params_string{};
 
             for (size_t i = 0; i < params.size(); i++)
             {
                 bool should_add_comma = i < params.size() - 1;
-                params_string.append(std::format(STR("{}{}"), params[i].to_string(), should_add_comma ? STR(", ") : STR("")));
+                params_string.append(std::format(std::string("{}{}"), params[i].to_string(), should_add_comma ? (", ") : ("")));
             }
 
-            return std::format(STR("{} {}({}){};"), return_type, name, params_string, const_qualifier ? STR("const") : STR(""));
+            return std::format(("{} {}({}){};"), return_type, name, params_string, const_qualifier ? ("const") : (""));
         }
     };
 
     struct MethodBody
     {
-        File::StringType name;
+        std::string name;
         MethodSignature signature;
         uint32_t offset;
         bool is_overload;
@@ -76,11 +76,11 @@ namespace RC::UVTD
 
     struct Class
     {
-        File::StringType class_name;
-        File::StringType class_name_clean;
+        std::string class_name;
+        std::string class_name_clean;
         std::map<uint32_t, MethodBody> functions;
         // Key: Variable name
-        std::map<File::StringType, MemberVariable> variables;
+        std::map<std::string, MemberVariable> variables;
         uint32_t last_virtual_offset{};
         struct SymbolNameInfo validities{ false, false };
     };
@@ -89,24 +89,24 @@ namespace RC::UVTD
     public:
         struct MemberVariable
         {
-            File::StringType type;
+            std::string type;
             int32_t offset;
         };
 
         struct EnumEntry
         {
-            File::StringType name;
-            File::StringType name_clean;
-            std::map<File::StringType, MemberVariable> variables;
+            std::string name;
+            std::string name_clean;
+            std::map<std::string, MemberVariable> variables;
         };		
         
         struct Class
         {
-            File::StringType class_name;
-            File::StringType class_name_clean;
+            std::string class_name;
+            std::string class_name_clean;
             std::map<uint32_t, MethodBody> functions;
             // Key: Variable name
-            std::map<File::StringType, MemberVariable> variables;
+            std::map<std::string, MemberVariable> variables;
             uint32_t last_virtual_offset;
             struct SymbolNameInfo validities{ false, false };
         };
@@ -120,8 +120,8 @@ namespace RC::UVTD
         PDB::DBIStream dbi_stream;
         bool is_425_plus;
 
-        std::unordered_map<File::StringType, EnumEntry> enum_entries;
-        std::unordered_map<File::StringType, Class> class_entries;
+        std::unordered_map<std::string, EnumEntry> enum_entries;
+        std::unordered_map<std::string, Class> class_entries;
 
     public:
         Symbols() = delete;
@@ -133,17 +133,17 @@ namespace RC::UVTD
         Symbols& operator=(const Symbols& other);
 
     public:
-        auto get_or_create_enum_entry(const File::StringType& symbol_name, const File::StringType& symbol_name_clean) -> EnumEntry&;
-        auto get_or_create_class_entry(const File::StringType& symbol_name, const File::StringType& symbol_name_clean, const SymbolNameInfo& name_info) -> Class&;
+        auto get_or_create_enum_entry(const std::string& symbol_name, const std::string& symbol_name_clean) -> EnumEntry&;
+        auto get_or_create_class_entry(const std::string& symbol_name, const std::string& symbol_name_clean, const SymbolNameInfo& name_info) -> Class&;
 
-        auto generate_method_signature(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* function_record, File::StringType method_name) -> MethodSignature;
+        auto generate_method_signature(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* function_record, std::string method_name) -> MethodSignature;
 
     public:
-        auto static get_type_name(const PDB::TPIStream& tpi_stream, uint32_t record_index) -> File::StringType;
-        auto static get_method_name(const PDB::CodeView::TPI::FieldList* method_record) -> File::StringType;
-        auto static get_leaf_name(const char* data, PDB::CodeView::TPI::TypeRecordKind kind) -> File::StringType;
+        auto static get_type_name(const PDB::TPIStream& tpi_stream, uint32_t record_index) -> std::string;
+        auto static get_method_name(const PDB::CodeView::TPI::FieldList* method_record) -> std::string;
+        auto static get_leaf_name(const char* data, PDB::CodeView::TPI::TypeRecordKind kind) -> std::string;
 
-        auto static clean_name(File::StringType name) -> File::StringType;
+        auto static clean_name(std::string name) -> std::string;
 
         auto static is_virtual(PDB::CodeView::TPI::MemberAttributes attributes) -> bool;
 

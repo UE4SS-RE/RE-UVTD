@@ -24,11 +24,11 @@ namespace RC::UVTD
         }
 
     private:
-        auto process_class(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* class_record, const File::StringType& class_name, const SymbolNameInfo& name_info) -> void;
+        auto process_class(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* class_record, const std::string& class_name, const SymbolNameInfo& name_info) -> void;
         auto process_member(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::FieldList* field_record, Class& class_entry) -> void;
 
     private:
-        auto dump_member_variable_layouts(std::unordered_map<File::StringType, SymbolNameInfo>& names) -> void;
+        auto dump_member_variable_layouts(std::unordered_map<std::string, SymbolNameInfo>& names) -> void;
 
     public:
         auto generate_code() -> void;

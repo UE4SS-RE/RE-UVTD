@@ -23,13 +23,13 @@
 
 namespace RC::UVTD 
 {
-    auto VTableDumper::process_class(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* class_record, const File::StringType& name, const SymbolNameInfo& name_info) -> void
+    auto VTableDumper::process_class(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* class_record, const std::string& name, const SymbolNameInfo& name_info) -> void
     {
         auto changed = change_prefix(name, symbols.is_425_plus);
         if (!changed.has_value()) return;
 
-        File::StringType class_name = *changed;
-        File::StringType class_name_clean = Symbols::clean_name(class_name);
+        std::string class_name = *changed;
+        std::string class_name_clean = Symbols::clean_name(class_name);
 
         auto& class_entry = type_container.get_or_create_class_entry(class_name, class_name_clean, name_info);
 
@@ -62,8 +62,8 @@ namespace RC::UVTD
     {
         auto list = tpi_stream.GetTypeRecord(method_record->data.LF_METHOD.mList);
 
-        File::StringType method_name = Symbols::get_method_name(method_record);
-        File::StringType method_name_clean = Symbols::clean_name(method_name);
+        std::string method_name = Symbols::get_method_name(method_record);
+        std::string method_name_clean = Symbols::clean_name(method_name);
 
         // this is required because METHOD struct size is not constant :)
         size_t next_offset = 0;
@@ -84,10 +84,10 @@ namespace RC::UVTD
             if (!Symbols::is_virtual(overload_record->METHOD.attributes)) continue;
             if (!function_record || function_record->header.kind != PDB::CodeView::TPI::TypeRecordKind::LF_MFUNCTION) continue;
 
-            File::StringType overload_name = method_name_clean;
+            std::string overload_name = method_name_clean;
             if (overload_index != 0)
             {
-                overload_name += std::format(STR("_{}"), overload_index);
+                overload_name += std::format("_{}", overload_index);
             }
             overload_index++;
 
@@ -101,13 +101,13 @@ namespace RC::UVTD
 
     auto VTableDumper::process_onemethod(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::FieldList* method_record, Class& class_entry) -> void
     {
-        static std::unordered_map<File::StringType, std::unordered_map<File::StringType, uint32_t>> functions_already_dumped{};
+        static std::unordered_map<std::string, std::unordered_map<std::string, uint32_t>> functions_already_dumped{};
 
         const auto is_virtual = method_record->data.LF_ONEMETHOD.attributes.mprop == (uint16_t)PDB::CodeView::TPI::MethodProperty::Intro ||
             method_record->data.LF_ONEMETHOD.attributes.mprop == (uint16_t)PDB::CodeView::TPI::MethodProperty::PureIntro;
         if (!is_virtual) return;
 
-        File::StringType method_name = Symbols::get_method_name(method_record);
+        std::string method_name = Symbols::get_method_name(method_record);
         int32_t vtable_offset = method_record->data.LF_ONEMETHOD.vbaseoff[0];
         auto function_record = tpi_stream.GetTypeRecord(method_record->data.LF_ONEMETHOD.index);
 
@@ -117,14 +117,14 @@ namespace RC::UVTD
         {
             if (auto it2 = it->second.find(method_name); it2 != it->second.end())
             {
-                method_name.append(std::format(STR("_{}"), ++it2->second));
+                method_name.append(std::format("_{}", ++it2->second));
                 is_overload = true;
             }
         }
 
         Output::send(STR("  method {} offset {}\n"), method_name, vtable_offset);
 
-        File::StringType method_name_clean = Symbols::clean_name(method_name);
+        std::string method_name_clean = Symbols::clean_name(method_name);
 
         auto& function = class_entry.functions[vtable_offset];
         function.name = method_name_clean;
@@ -134,9 +134,9 @@ namespace RC::UVTD
         functions_already_dumped.emplace(method_name, 1);
     }
 
-    auto VTableDumper::dump_vtable_for_symbol(std::unordered_map<File::StringType, SymbolNameInfo>& names) -> void
+    auto VTableDumper::dump_vtable_for_symbol(std::unordered_map<std::string, SymbolNameInfo>& names) -> void
     {
-        Output::send(STR("Dumping {} struct symbols for {}\n"), names.size(), symbols.pdb_file_path.filename().stem().wstring());
+        Output::send(STR("Dumping {} struct symbols for {}\n"), names.size(), symbols.pdb_file_path.filename().stem().string());
 
         const PDB::TPIStream tpi_stream = PDB::CreateTPIStream(symbols.pdb_file);
 
@@ -146,7 +146,7 @@ namespace RC::UVTD
             {
                 if (type_record->data.LF_CLASS.property.fwdref) continue;
 
-                const File::StringType class_name = Symbols::get_leaf_name(type_record->data.LF_CLASS.data, type_record->data.LF_CLASS.lfEasy.kind);
+                const std::string class_name = Symbols::get_leaf_name(type_record->data.LF_CLASS.data, type_record->data.LF_CLASS.lfEasy.kind);
                 if (!names.contains(class_name)) continue;
 
                 const auto name_info = names.find(class_name);
@@ -160,12 +160,12 @@ namespace RC::UVTD
 
     auto VTableDumper::generate_code() -> void
     {
-        std::unordered_map<File::StringType, SymbolNameInfo> vtable_names;
+        std::unordered_map<std::string, SymbolNameInfo> vtable_names;
         for (const auto& object_item : s_object_items)
         {
             if (!object_item.ValidForVTable) continue;
             
-            vtable_names.emplace(to_wstring(object_item.ObjectName), SymbolNameInfo{ object_item.ValidForVTable, object_item.ValidForMemberVar });
+            vtable_names.emplace(object_item.ObjectName, SymbolNameInfo{ object_item.ValidForVTable, object_item.ValidForMemberVar });
         }
 
         dump_vtable_for_symbol(vtable_names);
@@ -173,24 +173,24 @@ namespace RC::UVTD
 
     auto VTableDumper::generate_files() -> void
     {
-        File::StringType pdb_name = symbols.pdb_file_path.filename().stem();
+        std::string pdb_name = symbols.pdb_file_path.filename().stem().string();
 
         for (const auto& [class_name, class_entry] : type_container.get_class_entries())
         {
             Output::send(STR("Generating file '{}_VTableOffsets_{}_FunctionBody.cpp'\n"), pdb_name, class_entry.class_name_clean);
             Output::Targets<Output::NewFileDevice> function_body_dumper;
             auto& function_body_file_device = function_body_dumper.get_device<Output::NewFileDevice>();
-            function_body_file_device.set_file_name_and_path(vtable_gen_output_function_bodies_path / std::format(STR("{}_VTableOffsets_{}_FunctionBody.cpp"), pdb_name, class_name));
-            function_body_file_device.set_formatter([](File::StringViewType string) {
-                return File::StringType{ string };
+            function_body_file_device.set_file_name_and_path((vtable_gen_output_function_bodies_path / std::format(STR("{}_VTableOffsets_{}_FunctionBody.cpp"), pdb_name, class_name)).string());
+            function_body_file_device.set_formatter([](std::string_view string) {
+                return std::string{ string };
             });
 
             for (const auto& [function_index, function_entry] : class_entry.functions)
             {
                 auto local_class_name = class_entry.class_name;
-                if (auto pos = local_class_name.find(STR("Property")); pos != local_class_name.npos)
+                if (auto pos = local_class_name.find("Property"); pos != local_class_name.npos)
                 {
-                    local_class_name.replace(0, 1, STR("F"));
+                    local_class_name.replace(0, 1, "F");
                 }
 
                 function_body_dumper.send(STR("if (auto it = {}::VTableLayoutMap.find(STR(\"{}\")); it == {}::VTableLayoutMap.end())\n"), local_class_name, function_entry.name, local_class_name);
@@ -204,9 +204,9 @@ namespace RC::UVTD
         Output::send(STR("Generating file '{}'\n"), template_file);
         Output::Targets<Output::NewFileDevice> ini_dumper;
         auto& ini_file_device = ini_dumper.get_device<Output::NewFileDevice>();
-        ini_file_device.set_file_name_and_path(vtable_templates_output_path / template_file);
-        ini_file_device.set_formatter([](File::StringViewType string) {
-            return File::StringType{ string };
+        ini_file_device.set_file_name_and_path((vtable_templates_output_path / template_file).string());
+        ini_file_device.set_formatter([](std::string_view string) {
+            return std::string{ string };
         });
 
         for (const auto& [class_name, class_entry] : type_container.get_class_entries())

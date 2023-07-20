@@ -60,7 +60,7 @@ namespace RC::UVTD
         return *this;
     }
 
-    auto Symbols::generate_method_signature(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* function_record, File::StringType method_name) -> MethodSignature
+    auto Symbols::generate_method_signature(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* function_record, std::string method_name) -> MethodSignature
     {
         MethodSignature signature{};
 
@@ -86,7 +86,7 @@ namespace RC::UVTD
         return signature;
     }
 
-    auto Symbols::get_type_name(const PDB::TPIStream& tpi_stream, uint32_t record_index) -> File::StringType
+    auto Symbols::get_type_name(const PDB::TPIStream& tpi_stream, uint32_t record_index) -> std::string
     {
         if (record_index < tpi_stream.GetFirstTypeIndex())
         {
@@ -94,18 +94,18 @@ namespace RC::UVTD
             switch (type)
             {
             case PDB::CodeView::TPI::TypeIndexKind::T_NOTYPE:
-                return STR("<NO TYPE>");
+                return "<NO TYPE>";
             case PDB::CodeView::TPI::TypeIndexKind::T_HRESULT:
-                return STR("HRESULT");
+                return "HRESULT";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PHRESULT:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PHRESULT:
-                return STR("PHRESULT");
+                return "PHRESULT";
             case PDB::CodeView::TPI::TypeIndexKind::T_VOID:
-                return STR("void");
+                return "void";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PVOID:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PVOID:
             case PDB::CodeView::TPI::TypeIndexKind::T_PVOID:
-                return STR("void*");
+                return "void*";
 
             case PDB::CodeView::TPI::TypeIndexKind::T_32PBOOL08:
             case PDB::CodeView::TPI::TypeIndexKind::T_32PBOOL16:
@@ -115,105 +115,105 @@ namespace RC::UVTD
             case PDB::CodeView::TPI::TypeIndexKind::T_64PBOOL16:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PBOOL32:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PBOOL64:
-                return STR("bool*");
+                return "bool*";
 
             case PDB::CodeView::TPI::TypeIndexKind::T_BOOL08:
             case PDB::CodeView::TPI::TypeIndexKind::T_BOOL16:
             case PDB::CodeView::TPI::TypeIndexKind::T_BOOL32:
-                return STR("bool");
+                return "bool";
 
             case PDB::CodeView::TPI::TypeIndexKind::T_RCHAR:
             case PDB::CodeView::TPI::TypeIndexKind::T_CHAR:
-                return STR("char");
+                return "char";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PRCHAR:
             case PDB::CodeView::TPI::TypeIndexKind::T_32PCHAR:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PRCHAR:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PCHAR:
             case PDB::CodeView::TPI::TypeIndexKind::T_PRCHAR:
             case PDB::CodeView::TPI::TypeIndexKind::T_PCHAR:
-                return STR("char*");
+                return "char*";
 
             case PDB::CodeView::TPI::TypeIndexKind::T_UCHAR:
-                return STR("uint8");
+                return "uint8";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PUCHAR:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PUCHAR:
             case PDB::CodeView::TPI::TypeIndexKind::T_PUCHAR:
-                return STR("uint8*");
+                return "uint8*";
             case PDB::CodeView::TPI::TypeIndexKind::T_WCHAR:
-                return STR("wchar_t");
+                return "wchar_t";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PWCHAR:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PWCHAR:
             case PDB::CodeView::TPI::TypeIndexKind::T_PWCHAR:
-                return STR("wchar_t*");
+                return "wchar_t*";
             case PDB::CodeView::TPI::TypeIndexKind::T_SHORT:
-                return STR("int16");
+                return "int16";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PSHORT:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PSHORT:
             case PDB::CodeView::TPI::TypeIndexKind::T_PSHORT:
-                return STR("int16*");
+                return "int16*";
             case PDB::CodeView::TPI::TypeIndexKind::T_USHORT:
-                return STR("uint16");
+                return "uint16";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PUSHORT:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PUSHORT:
             case PDB::CodeView::TPI::TypeIndexKind::T_PUSHORT:
-                return STR("uint16*");
+                return "uint16*";
             case PDB::CodeView::TPI::TypeIndexKind::T_LONG:
-                return STR("int32");
+                return "int32";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PLONG:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PLONG:
             case PDB::CodeView::TPI::TypeIndexKind::T_PLONG:
-                return STR("int32*");
+                return "int32*";
             case PDB::CodeView::TPI::TypeIndexKind::T_ULONG:
-                return STR("uint32");
+                return "uint32";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PULONG:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PULONG:
             case PDB::CodeView::TPI::TypeIndexKind::T_PULONG:
-                return STR("uint32*");
+                return "uint32*";
             case PDB::CodeView::TPI::TypeIndexKind::T_REAL32:
-                return STR("float");
+                return "float";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PREAL32:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PREAL32:
             case PDB::CodeView::TPI::TypeIndexKind::T_PREAL32:
-                return STR("float*");
+                return "float*";
             case PDB::CodeView::TPI::TypeIndexKind::T_REAL64:
-                return STR("double");
+                return "double";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PREAL64:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PREAL64:
             case PDB::CodeView::TPI::TypeIndexKind::T_PREAL64:
-                return STR("double*");
+                return "double*";
             case PDB::CodeView::TPI::TypeIndexKind::T_QUAD:
-                return STR("int64");
+                return "int64";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PQUAD:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PQUAD:
             case PDB::CodeView::TPI::TypeIndexKind::T_PQUAD:
-                return STR("int64*");
+                return "int64*";
             case PDB::CodeView::TPI::TypeIndexKind::T_UQUAD:
-                return STR("uint64");
+                return "uint64";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PUQUAD:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PUQUAD:
             case PDB::CodeView::TPI::TypeIndexKind::T_PUQUAD:
-                return STR("uint64*");
+                return "uint64*";
             case PDB::CodeView::TPI::TypeIndexKind::T_INT4:
-                return STR("int32");
+                return "int32";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PINT4:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PINT4:
             case PDB::CodeView::TPI::TypeIndexKind::T_PINT4:
-                return STR("int32*");
+                return "int32*";
             case PDB::CodeView::TPI::TypeIndexKind::T_UINT4:
-                return STR("uint32");
+                return "uint32";
             case PDB::CodeView::TPI::TypeIndexKind::T_32PUINT4:
             case PDB::CodeView::TPI::TypeIndexKind::T_64PUINT4:
             case PDB::CodeView::TPI::TypeIndexKind::T_PUINT4:
-                return STR("uint32*");
+                return "uint32*";
             default:
                 __debugbreak();
-                return STR("<UNKNOWN TYPE>");
+                return "<UNKNOWN TYPE>";
                 break;
             }
         }
 
         auto* record = tpi_stream.GetTypeRecord(record_index);
-        if (!record) return STR("<NONE>");
+        if (!record) return "<NONE>";
 
         switch (record->header.kind)
         {
@@ -221,40 +221,40 @@ namespace RC::UVTD
         case PDB::CodeView::TPI::TypeRecordKind::LF_STRUCTURE:
             return get_leaf_name(record->data.LF_CLASS.data, record->data.LF_CLASS.lfEasy.kind);
         case PDB::CodeView::TPI::TypeRecordKind::LF_ENUM:
-            return to_string_type(record->data.LF_ENUM.name);
+            return record->data.LF_ENUM.name;
         case PDB::CodeView::TPI::TypeRecordKind::LF_MODIFIER:
         {
             const auto modifier_attr = record->data.LF_MODIFIER.attr;
-            std::vector<File::StringType> modifiers{};
+            std::vector<std::string> modifiers{};
 
             if (modifier_attr.MOD_volatile)
-                modifiers.push_back(STR("volatile"));
+                modifiers.push_back("volatile");
 
-            File::StringType modifier_string{};
+            std::string modifier_string{};
             for (const auto& modifier : modifiers)
             {
-                modifier_string += modifier + STR(" ");
+                modifier_string += modifier + " ";
             }
 
             return modifier_string + get_type_name(tpi_stream, record->data.LF_MODIFIER.type);
         }
         case PDB::CodeView::TPI::TypeRecordKind::LF_POINTER: 
-            return get_type_name(tpi_stream, record->data.LF_POINTER.utype) + STR("*");
+            return get_type_name(tpi_stream, record->data.LF_POINTER.utype) + "*";
         case PDB::CodeView::TPI::TypeRecordKind::LF_MFUNCTION:
         case PDB::CodeView::TPI::TypeRecordKind::LF_PROCEDURE:
         {
             auto return_type = get_type_name(tpi_stream, record->data.LF_PROCEDURE.rvtype);
-            File::StringType args = get_type_name(tpi_stream, record->data.LF_PROCEDURE.arglist);
-            return std::format(STR("Function<{}({})>"), return_type, args);
+            std::string args = get_type_name(tpi_stream, record->data.LF_PROCEDURE.arglist);
+            return std::format("Function<{}({})>", return_type, args);
         }
         case PDB::CodeView::TPI::TypeRecordKind::LF_ARGLIST:
         {
-            File::StringType args{};
+            std::string args{};
 
             for (size_t i = 0; i < record->data.LF_ARGLIST.count; i++)
             {
                 bool should_add_comma = i < record->data.LF_ARGLIST.count - 1;
-                args.append(std::format(STR("{}{}"), get_type_name(tpi_stream, record->data.LF_ARGLIST.arg[i]), should_add_comma ? STR(", ") : STR("")));
+                args.append(std::format("{}{}", get_type_name(tpi_stream, record->data.LF_ARGLIST.arg[i]), should_add_comma ? ", " : ""));
             }
 
             return args;
@@ -263,23 +263,23 @@ namespace RC::UVTD
             return get_type_name(tpi_stream, record->data.LF_BITFIELD.type);
         default:
             __debugbreak();
-            return STR("<UNKNOWN TYPE>");
+            return "<UNKNOWN TYPE>";
         }
     }
 
-    auto Symbols::get_method_name(const PDB::CodeView::TPI::FieldList* method_record) -> File::StringType
+    auto Symbols::get_method_name(const PDB::CodeView::TPI::FieldList* method_record) -> std::string
     {
         auto methodAttributes = static_cast<PDB::CodeView::TPI::MethodProperty>(method_record->data.LF_ONEMETHOD.attributes.mprop);
         switch (methodAttributes)
         {
         case PDB::CodeView::TPI::MethodProperty::Intro:
         case PDB::CodeView::TPI::MethodProperty::PureIntro:
-            return to_string_type(&reinterpret_cast<const char*>(method_record->data.LF_ONEMETHOD.vbaseoff)[sizeof(uint32_t)]);
+            return &reinterpret_cast<const char*>(method_record->data.LF_ONEMETHOD.vbaseoff)[sizeof(uint32_t)];
         default:
             break;
         }
 
-        return to_string_type(&reinterpret_cast<const char*>(method_record->data.LF_ONEMETHOD.vbaseoff)[0]);
+        return &reinterpret_cast<const char*>(method_record->data.LF_ONEMETHOD.vbaseoff)[0];
     }
 
     auto static get_leaf_size(PDB::CodeView::TPI::TypeRecordKind kind) -> size_t
@@ -311,12 +311,12 @@ namespace RC::UVTD
         return 0;
     }
 
-    auto Symbols::get_leaf_name(const char* data, PDB::CodeView::TPI::TypeRecordKind kind) -> File::StringType
+    auto Symbols::get_leaf_name(const char* data, PDB::CodeView::TPI::TypeRecordKind kind) -> std::string
     {
-        return to_string_type(&data[get_leaf_size(kind)]);
+        return &data[get_leaf_size(kind)];
     }
 
-    auto Symbols::clean_name(File::StringType name) -> File::StringType
+    auto Symbols::clean_name(std::string name) -> std::string
     {
         std::replace(name.begin(), name.end(), ':', '_');
         std::replace(name.begin(), name.end(), '~', '$');

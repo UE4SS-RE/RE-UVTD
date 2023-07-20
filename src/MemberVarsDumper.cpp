@@ -7,94 +7,14 @@
 
 namespace RC::UVTD
 {
-    static inline std::vector<File::StringType> s_types_to_not_dump{
-        STR("FUnversionedStructSchema"),
-        STR("ELifetimeCondition"),
-        STR("UAISystemBase"),
-        STR("FLevelCollection"),
-        STR("FThreadSafeCounter"),
-        STR("FWorldAsyncTraceState"),
-        STR("FDelegateHandle"),
-        STR("UAvoidanceManager"),
-        STR("FOnBeginTearingDownEvent"),
-        STR("UBlueprint"),
-        STR("UCanvas"),
-        STR("UActorComponent"),
-        STR("AController"),
-        STR("ULevel"),
-        STR("FPhysScene_Chaos"),
-        STR("APhysicsVolume"),
-        STR("UDemoNetDriver"),
-        STR("FEndPhysicsTickFunction"),
-        STR("FFXSystemInterface"),
-        STR("ERHIFeatureLevel"),
-        STR("EFlushLevelStreamingType"),
-        STR("ULineBatchComponent"),
-        STR("AGameState"),
-        STR("FOnGameStateSetEvent"),
-        STR("AAudioVolume"),
-        STR("FLatentActionManager"),
-        STR("FOnLevelsChangedEvent"),
-        STR("AParticleEventManager"),
-        STR("UNavigationSystem"),
-        STR("UNetDriver"),
-        STR("AGameNetworkManager"),
-        STR("ETravelType"),
-        STR("FDefaultDelegateUserPolicy"),
-        STR("TMulticastDelegate"),
-        STR("FActorsInitializedParams"),
-        STR("FOnBeginPostProcessSettings"),
-        STR("FIntVector"),
-        STR("FWorldPSCPool"),
-        STR("UMaterialParameterCollectionInstance"),
-        STR("FParticlePerfStats"),
-        STR("FWorldInGamePerformanceTrackers"),
-        STR("UPhysicsCollisionHandler"),
-        STR("UPhysicsFieldComponent"),
-        STR("FPhysScene"),
-        STR("APlayerController"),
-        STR("IInterface_PostProcessVolume"),
-        STR("FOnTickFlushEvent"),
-        STR("FSceneInterface"),
-        STR("FStartAsyncSimulationFunction"),
-        STR("FStartPhysicsTickFunction"),
-        STR("FOnNetTickEvent"),
-        STR("ETickingGroup"),
-        STR("FTickTaskLevel"),
-        STR("FTimerManager"),
-        STR("FURL"),
-        STR("UWorldComposition"),
-        STR("EWorldType"),
-        STR("FSubsystemCollection"),
-        STR("UWorldSubsystem"),
-        STR("FStreamingLevelsToConsider"),
-        STR("ACameraActor"),
-        STR("EMapPropertyFlags"),
-        STR("FScriptMapLayout"),
-        STR("EArrayPropertyFlags"),
-        STR("ICppClassTypeInfo"),
-        STR("FNativeFunctionLookup"),
-        STR("FGCReferenceTokenStream"),
-        STR("FWindowsCriticalSection"),
-        STR("FWindowsRWLock"),
-        STR("FRepRecord"),
-        STR("EClassCastFlags"),
-        STR("FAudioDeviceHandle"),
-        STR("TVector"),
-        STR("FScriptSetLayout"),
-        STR("FArchiveSerializedPropertyChain"),
-        STR("FArchiveCookData"),
-        STR("FFastPathLoadBuffer"),
-        STR("FTokenStreamOwner")
-    };
-
-    auto MemberVarsDumper::process_class(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* class_record, const File::StringType& name, const SymbolNameInfo& name_info) -> void
+    
+    auto MemberVarsDumper::process_class(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* class_record, const std::string& name, const SymbolNameInfo& name_info) -> void
     {
         auto changed = change_prefix(name, symbols.is_425_plus);
         if (!changed.has_value()) return;
 
-        File::StringType class_name = *changed;
-        File::StringType class_name_clean = Symbols::clean_name(class_name);
+        std::string class_name = *changed;
+        std::string class_name_clean = Symbols::clean_name(class_name);
         auto& class_entry = type_container.get_or_create_class_entry(class_name, class_name_clean, name_info);
 
         auto fields = tpi_stream.GetTypeRecord(class_record->data.LF_CLASS.field);
@@ -113,12 +33,12 @@ namespace RC::UVTD
 
     auto MemberVarsDumper::process_member(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::FieldList* field_record, Class& class_entry) -> void
     {
-        File::StringType member_name = Symbols::get_leaf_name(field_record->data.LF_STMEMBER.name, field_record->data.LF_MEMBER.lfEasy.kind);
+        std::string member_name = Symbols::get_leaf_name(field_record->data.LF_STMEMBER.name, field_record->data.LF_MEMBER.lfEasy.kind);
 
         auto changed = change_prefix(Symbols::get_type_name(tpi_stream, field_record->data.LF_MEMBER.index), symbols.is_425_plus);
         if (!changed.has_value()) return;
 
-        File::StringType type_name = *changed;
+        std::string type_name = *changed;
 
         for (const auto& type_to_not_dump : s_types_to_not_dump)
         {
@@ -134,9 +54,9 @@ namespace RC::UVTD
         variable.offset = *(uint16_t*)field_record->data.LF_MEMBER.offset;
     }
 
-    auto MemberVarsDumper::dump_member_variable_layouts(std::unordered_map<File::StringType, SymbolNameInfo>& names) -> void
+    auto MemberVarsDumper::dump_member_variable_layouts(std::unordered_map<std::string, SymbolNameInfo>& names) -> void
     {
-        Output::send(STR("Dumping {} symbols for {}\n"), names.size(), symbols.pdb_file_path.filename().stem().wstring());
+        Output::send(STR("Dumping {} symbols for {}\n"), names.size(), symbols.pdb_file_path.filename().stem().string());
 
         const PDB::TPIStream tpi_stream = PDB::CreateTPIStream(symbols.pdb_file);
 
@@ -146,7 +66,7 @@ namespace RC::UVTD
             {
                 if (type_record->data.LF_CLASS.property.fwdref) continue;
 
-                const File::StringType class_name = Symbols::get_leaf_name(type_record->data.LF_CLASS.data, type_record->data.LF_CLASS.lfEasy.kind);
+                const std::string class_name = Symbols::get_leaf_name(type_record->data.LF_CLASS.data, type_record->data.LF_CLASS.lfEasy.kind);
                 if (!names.contains(class_name)) continue;
 
                 const auto name_info = names.find(class_name);
@@ -161,12 +81,12 @@ namespace RC::UVTD
 
     auto MemberVarsDumper::generate_code() -> void
     {
-        std::unordered_map<File::StringType, SymbolNameInfo> member_vars_names;
+        std::unordered_map<std::string, SymbolNameInfo> member_vars_names;
 
         for (ObjectItem& item : s_object_items)
         {
             if (!item.ValidForMemberVar) continue;
-            member_vars_names.emplace(to_wstring(item.ObjectName), SymbolNameInfo{ item.ValidForVTable, item.ValidForMemberVar });
+            member_vars_names.emplace(item.ObjectName, SymbolNameInfo{ item.ValidForVTable, item.ValidForMemberVar });
         }
 
         dump_member_variable_layouts(member_vars_names);
@@ -174,15 +94,15 @@ namespace RC::UVTD
 
     auto MemberVarsDumper::generate_files() -> void
     {
-        File::StringType pdb_name = symbols.pdb_file_path.filename().stem();
+        std::string pdb_name = symbols.pdb_file_path.filename().stem().string();
 
-        auto default_template_file = std::filesystem::path{ STR("MemberVariableLayout.ini") };
+        auto default_template_file = std::filesystem::path{ STR("MemberVariableLayout.ini") }.string();
 
-        Output::send(STR("Generating file '{}'\n"), default_template_file.wstring());
+        Output::send(STR("Generating file '{}'\n"), default_template_file);
         
         Output::Targets<Output::NewFileDevice> default_ini_dumper;
         auto& default_ini_file_device = default_ini_dumper.get_device<Output::NewFileDevice>();
-        default_ini_file_device.set_file_name_and_path(member_variable_layouts_templates_output_path / default_template_file);
+        default_ini_file_device.set_file_name_and_path((member_variable_layouts_templates_output_path / default_template_file).string());
         default_ini_file_device.set_formatter([](File::StringViewType string) {
             return File::StringType{ string };
         });
@@ -193,17 +113,17 @@ namespace RC::UVTD
         
         Output::Targets<Output::NewFileDevice> ini_dumper;
         auto& ini_file_device = ini_dumper.get_device<Output::NewFileDevice>();
-        ini_file_device.set_file_name_and_path(member_variable_layouts_templates_output_path / template_file);
+        ini_file_device.set_file_name_and_path((member_variable_layouts_templates_output_path / template_file).string());
         ini_file_device.set_formatter([](File::StringViewType string) {
             return File::StringType{ string };
         });
 
-        auto pdb_name_no_underscore = pdb_name;
-        pdb_name_no_underscore.replace(pdb_name_no_underscore.find(STR('_')), 1, STR(""));
+        std::string pdb_name_no_underscore = pdb_name;
+        pdb_name_no_underscore.replace(pdb_name_no_underscore.find("_"), 1, "");
 
-        auto virtual_header_file = virtual_gen_output_include_path / std::format(STR("UnrealVirtual{}.hpp"), pdb_name_no_underscore);
+        auto virtual_header_file = (virtual_gen_output_include_path / std::format(STR("UnrealVirtual{}.hpp"), pdb_name_no_underscore)).string();
 
-        Output::send(STR("Generating file '{}'\n"), virtual_header_file.wstring());
+        Output::send(STR("Generating file '{}'\n"), virtual_header_file);
         
         Output::Targets<Output::NewFileDevice> virtual_header_dumper;
         auto& virtual_header_file_device = virtual_header_dumper.get_device<Output::NewFileDevice>();
@@ -212,9 +132,9 @@ namespace RC::UVTD
             return File::StringType{ string };
         });
 
-        auto virtual_src_file = virtual_gen_function_bodies_path / std::format(STR("UnrealVirtual{}.cpp"), pdb_name_no_underscore);
+        auto virtual_src_file = (virtual_gen_function_bodies_path / std::format(STR("UnrealVirtual{}.cpp"), pdb_name_no_underscore)).string();
 
-        Output::send(STR("Generating file '{}'\n"), virtual_src_file.wstring());
+        Output::send(STR("Generating file '{}'\n"), virtual_src_file);
         
         Output::Targets<Output::NewFileDevice> virtual_src_dumper;
         auto& virtual_src_file_device = virtual_src_dumper.get_device<Output::NewFileDevice>();
@@ -223,8 +143,8 @@ namespace RC::UVTD
             return File::StringType{ string };
         });
 
-        bool is_case_preserving_pdb = !(CasePreservingVariants.find(pdb_name) == CasePreservingVariants.end());
-        bool is_non_case_preserving_pdb = !(NonCasePreservingVariants.find(pdb_name) == NonCasePreservingVariants.end());
+        bool is_case_preserving_pdb = !(CasePreservingVariantsList.find(pdb_name) == CasePreservingVariantsList.end());
+        bool is_non_case_preserving_pdb = !(NonCasePreservingVariantsList.find(pdb_name) == NonCasePreservingVariantsList.end());
 
         if (!is_case_preserving_pdb)
         {
@@ -287,9 +207,9 @@ namespace RC::UVTD
 
             if (class_entry.variables.empty()) { continue; }
 
-            auto default_setter_src_file = member_variable_layouts_gen_function_bodies_path / std::format(STR("{}_MemberVariableLayout_DefaultSetter_{}.cpp"), pdb_name, class_entry.class_name_clean);
+            auto default_setter_src_file = (member_variable_layouts_gen_function_bodies_path / std::format(STR("{}_MemberVariableLayout_DefaultSetter_{}.cpp"), pdb_name, class_entry.class_name_clean)).string();
             
-            Output::send(STR("Generating file '{}'\n"), default_setter_src_file.wstring());
+            Output::send(STR("Generating file '{}'\n"), default_setter_src_file);
             
             Output::Targets<Output::NewFileDevice> default_setter_src_dumper;
             auto& default_setter_src_file_device = default_setter_src_dumper.get_device<Output::NewFileDevice>();
@@ -306,11 +226,11 @@ namespace RC::UVTD
                 ini_dumper.send(STR("{} = 0x{:X}\n"), variable.name, variable.offset);
                 default_ini_dumper.send(STR("{} = -1\n"), variable.name);
 
-                File::StringType final_variable_name = variable.name;
+                std::string final_variable_name = variable.name;
 
-                if (variable.name == STR("EnumFlags"))
+                if (variable.name == "EnumFlags")
                 {
-                    final_variable_name = STR("EnumFlags_Internal");
+                    final_variable_name = "EnumFlags_Internal";
                 }
 
                 default_setter_src_dumper.send(STR("if (auto it = {}::MemberOffsets.find(STR(\"{}\")); it == {}::MemberOffsets.end())\n"), class_entry.class_name, final_variable_name, class_entry.class_name);
