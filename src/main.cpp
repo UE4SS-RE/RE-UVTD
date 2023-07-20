@@ -7,6 +7,7 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <UVTD/Helpers.hpp>
 
 using namespace RC;
 
@@ -32,6 +33,8 @@ auto static get_user_selection() -> int32_t
     return selection;
 }
 
+
+
 // We're outside DllMain here
 auto thread_dll_start([[maybe_unused]]LPVOID thread_param) -> unsigned long
 {
@@ -50,6 +53,8 @@ auto thread_dll_start([[maybe_unused]]LPVOID thread_param) -> unsigned long
     Output::set_default_devices<Output::DebugConsoleDevice, Output::NewFileDevice>();
     auto& file_device = Output::get_device<Output::NewFileDevice>();
     file_device.set_file_name_and_path(module_path / "UVTD.log");
+    UVTD::SettingsManager::Read_Settings();
+    
 
     try
     {

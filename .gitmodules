@@ -1,3 +1,6 @@
 [submodule "Dependencies/raw_pdb"]
 	path = Dependencies/raw_pdb
 	url = git@github.com:localcc/raw_pdb.git
+[submodule "Dependencies/glaze"]
+	path = Dependencies/glaze
+	url = git@github.com:stephenberry/glaze.git

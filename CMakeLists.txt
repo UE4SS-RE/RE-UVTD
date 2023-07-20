@@ -45,6 +45,7 @@ add_subdirectory("Dependencies/Input")
 add_subdirectory("Dependencies/DynamicOutput")
 add_subdirectory("Dependencies/Function")
 add_subdirectory("Dependencies/Helpers")
+add_subdirectory("Dependencies/glaze")
 add_subdirectory("Dependencies/raw_pdb")
 
 # Tell WinAPI macros to map to unicode functions instead of ansi
@@ -70,7 +71,7 @@ target_link_options(${TARGET} PRIVATE ${PRIVATE_LINK_OPTIONS})
 target_compile_features(${TARGET} PUBLIC ${PUBLIC_COMPILE_FEATURES})
 set(UVTD_LINK_WITH_LIBRARIES File Input DynamicOutput)
 set(UVTD_LINK_WITH_INTERFACE_LIBRARIES Function Helpers)
-target_link_libraries(${TARGET} PRIVATE ${UVTD_LINK_WITH_LIBRARIES} ${UVTD_LINK_WITH_INTERFACE_LIBRARIES} raw_pdb)
+target_link_libraries(${TARGET} PRIVATE ${UVTD_LINK_WITH_LIBRARIES} ${UVTD_LINK_WITH_INTERFACE_LIBRARIES} glaze::glaze raw_pdb)
 
 if (${MAKE_DEPENDENCIES_STATIC} EQUAL 1)
     target_compile_definitions(${TARGET} PRIVATE ${UVTD_COMPILE_DEFINITIONS})

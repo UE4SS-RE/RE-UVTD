@@ -16,15 +16,12 @@ namespace RC::UVTD
 {
     enum class DumpMode { VTable, MemberVars, SolBindings };
 
-    enum class ValidForVTable { Yes, No };
-    enum class ValidForMemberVars { Yes, No };
-
     struct SymbolNameInfo
     {
-        ValidForVTable valid_for_vtable{};
-        ValidForMemberVars valid_for_member_vars{};
+        bool valid_for_vtable{};
+        bool valid_for_member_vars{};
 
-        explicit SymbolNameInfo(ValidForVTable valid_for_vtable, ValidForMemberVars valid_for_member_vars) :
+        explicit SymbolNameInfo(bool valid_for_vtable, bool valid_for_member_vars) :
             valid_for_vtable(valid_for_vtable),
             valid_for_member_vars(valid_for_member_vars)
         {
@@ -85,8 +82,7 @@ namespace RC::UVTD
         // Key: Variable name
         std::map<File::StringType, MemberVariable> variables;
         uint32_t last_virtual_offset{};
-        ValidForVTable valid_for_vtable{ ValidForVTable::No };
-        ValidForMemberVars valid_for_member_vars{ ValidForMemberVars::No };
+        struct SymbolNameInfo validities{ false, false };
     };
 
     class Symbols {
@@ -112,8 +108,7 @@ namespace RC::UVTD
             // Key: Variable name
             std::map<File::StringType, MemberVariable> variables;
             uint32_t last_virtual_offset;
-            ValidForVTable valid_for_vtable{ ValidForVTable::No };
-            ValidForMemberVars valid_for_member_vars{ ValidForMemberVars::No };
+            struct SymbolNameInfo validities{ false, false };
         };
 
     public:

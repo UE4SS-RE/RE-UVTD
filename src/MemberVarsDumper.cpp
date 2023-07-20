@@ -45,7 +45,6 @@ namespace RC::UVTD
         STR("FActorsInitializedParams"),
         STR("FOnBeginPostProcessSettings"),
         STR("FIntVector"),
-        STR("UGameInstance"),
         STR("FWorldPSCPool"),
         STR("UMaterialParameterCollectionInstance"),
         STR("FParticlePerfStats"),
@@ -69,7 +68,6 @@ namespace RC::UVTD
         STR("FSubsystemCollection"),
         STR("UWorldSubsystem"),
         STR("FStreamingLevelsToConsider"),
-        STR("APawn"),
         STR("ACameraActor"),
         STR("EMapPropertyFlags"),
         STR("FScriptMapLayout"),
@@ -167,8 +165,8 @@ namespace RC::UVTD
 
         for (ObjectItem& item : s_object_items)
         {
-            if (item.valid_for_member_vars != ValidForMemberVars::Yes) continue;
-            member_vars_names.emplace(item.name, SymbolNameInfo{ item.valid_for_vtable, item.valid_for_member_vars });
+            if (!item.ValidForMemberVar) continue;
+            member_vars_names.emplace(item.ObjectName, SymbolNameInfo{ item.ValidForVTable, item.ValidForMemberVar });
         }
 
         dump_member_variable_layouts(member_vars_names);
@@ -282,7 +280,7 @@ namespace RC::UVTD
 
         for (const auto& [class_name, class_entry] : type_container.get_class_entries())
         {
-            if (!class_entry.functions.empty() && class_entry.valid_for_vtable == ValidForVTable::Yes && !is_case_preserving_pdb)
+            if (!class_entry.functions.empty() && class_entry.validities.valid_for_vtable && !is_case_preserving_pdb)
             {
                 virtual_src_dumper.send(STR("#include <FunctionBodies/{}_VTableOffsets_{}_FunctionBody.cpp>\n"), pdb_name, class_name);
             }
@@ -337,7 +335,7 @@ namespace RC::UVTD
                 {
                     if (class_entry.variables.empty()) { continue; }
 
-                    if (class_entry.valid_for_member_vars == ValidForMemberVars::Yes)
+                    if (class_entry.validities.valid_for_member_vars)
                     {
                         virtual_src_dumper.send(STR("#include <FunctionBodies/{}_CasePreserving_MemberVariableLayout_DefaultSetter_{}.cpp>\n"), pdb_name, class_name);
                     }
@@ -349,7 +347,7 @@ namespace RC::UVTD
             {
                 if (class_entry.variables.empty()) { continue; }
 
-                if (class_entry.valid_for_member_vars == ValidForMemberVars::Yes)
+                if (class_entry.validities.valid_for_member_vars)
                 {
                     virtual_src_dumper.send(STR("#include <FunctionBodies/{}_MemberVariableLayout_DefaultSetter_{}.cpp>\n"), pdb_name, class_name);
                 }

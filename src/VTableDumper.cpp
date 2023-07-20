@@ -163,9 +163,9 @@ namespace RC::UVTD
         std::unordered_map<File::StringType, SymbolNameInfo> vtable_names;
         for (const auto& object_item : s_object_items)
         {
-            if (object_item.valid_for_vtable != ValidForVTable::Yes) continue;
+            if (!object_item.ValidForVTable) continue;
             
-            vtable_names.emplace(object_item.name, SymbolNameInfo{ object_item.valid_for_vtable, object_item.valid_for_member_vars });
+            vtable_names.emplace(object_item.ObjectName, SymbolNameInfo{ object_item.ValidForVTable, object_item.ValidForMemberVar });
         }
 
         dump_vtable_for_symbol(vtable_names);

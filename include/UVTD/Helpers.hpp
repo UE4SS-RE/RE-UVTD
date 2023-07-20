@@ -6,6 +6,8 @@
 #include <optional>
 #include <vector>
 
+#include <glaze/glaze.hpp>
+#include <glaze/core/macros.hpp>
 #include <UVTD/Symbols.hpp>
 #include <File/File.hpp>
 
@@ -30,77 +32,99 @@ namespace RC::UVTD
     static std::filesystem::path member_variable_layouts_gen_function_bodies_path = member_variable_layouts_gen_output_include_path / "FunctionBodies";
     static std::filesystem::path member_variable_layouts_templates_output_path = "MemberVarLayoutTemplates";
 
-
+        
     struct ObjectItem
     {
-        File::StringType name{};
-        ValidForVTable valid_for_vtable{};
-        ValidForMemberVars valid_for_member_vars{};
+        File::StringType ObjectName{};
+        bool ValidForVTable{ true };
+        bool ValidForMemberVar{ true };
     };
+
+    class SettingsManager
+    {
+    public:
+            struct UVTDSettings
+            {
+                    std::vector<ObjectItem> ObjectsToDump{};
+                    /*std::unordered_set<File::StringType> ValidUDTNames{};
+                    std::vector<File::StringType> TypesToSkip{};
+                    std::unordered_map<File::StringType, std::unordered_set<File::StringType>> PrivateVariables{};
+                    std::vector<File::StringType> UPrefixToFPrefix{};*/
+            };
+
+            static void Read_Settings();
+
+    };
+
+    
+
+
     // TODO: UConsole isn't found in all PDBs by this tool for some reason. Fix it.
     //       For now, to avoid problems, let's not generate for UConsole.
     static inline std::vector<ObjectItem> s_object_items{
-            {STR("UObjectBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("UObjectBaseUtility"), ValidForVTable::Yes, ValidForMemberVars::No},
-            {STR("UObject"), ValidForVTable::Yes, ValidForMemberVars::No},
-            {STR("UScriptStruct::ICppStructOps"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FOutputDevice"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("UStruct"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("UGameViewportClient"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            //{STR("UConsole"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FMalloc"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FArchive"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FArchiveState"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("AGameModeBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("AGameMode"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("AActor"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("AHUD"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("UPlayer"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("ULocalPlayer"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FExec"), ValidForVTable::Yes, ValidForMemberVars::No},
-            {STR("FField"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("UField"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FProperty"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("UProperty"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FNumericProperty"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("UNumericProperty"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FMulticastDelegateProperty"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("UMulticastDelegateProperty"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FObjectPropertyBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("UObjectPropertyBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            /*{STR("FConsoleManager"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("UDataTable"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FConsoleVariableBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},
-            {STR("FConsoleCommandBase"), ValidForVTable::Yes, ValidForMemberVars::Yes},*/
+            {STR("UObjectBase"), true, true },
+            {STR("UObjectBaseUtility"), true, false },
+            {STR("UObject"), true, false },
+            {STR("UScriptStruct::ICppStructOps"), true, true },
+            {STR("FOutputDevice"), true, true },
+            {STR("UStruct"), true, true },
+            {STR("UGameViewportClient"), true, true },
+            {STR("UConsole"), true, true },
+            {STR("FMalloc"), true, true },
+            {STR("FArchive"), true, true },
+            {STR("FArchiveState"), true, true },
+            {STR("AGameModeBase"), true, true },
+            {STR("AGameMode"), true, true },
+            {STR("AActor"), true, true },
+            {STR("AHUD"), true, true },
+            {STR("UPlayer"), true, true },
+            {STR("ULocalPlayer"), true, true },
+            {STR("FExec"), true, false },
+            {STR("FField"), true, true },
+            {STR("UField"), true, true },
+            {STR("FProperty"), true, true },
+            {STR("UProperty"), true, true },
+            {STR("FNumericProperty"), true, true },
+            {STR("UNumericProperty"), true, true },
+            {STR("FMulticastDelegateProperty"), true, true },
+            {STR("UMulticastDelegateProperty"), true, true },
+            {STR("FObjectPropertyBase"), true, true },
+            {STR("UObjectPropertyBase"), true, true },
+            {STR("UGameEngine"), true, true },
+            {STR("UEngine"), true, true },
+            /*{STR("FConsoleManager"), true, true },
+            {STR("UDataTable"), true, true },
+            {STR("FConsoleVariableBase"), true, true },
+            {STR("FConsoleCommandBase"), true, true },*/
 
-            {STR("UScriptStruct"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UWorld"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UFunction"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UClass"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UEnum"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FStructProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UStructProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FArrayProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UArrayProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FMapProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UMapProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FBoolProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UBoolProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FByteProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UByteProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FEnumProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UEnumProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FClassProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UClassProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FSoftClassProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("USoftClassProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FDelegateProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UDelegateProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FInterfaceProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("UInterfaceProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FFieldPathProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("FSetProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
-            {STR("USetProperty"), ValidForVTable::No, ValidForMemberVars::Yes},
+            {STR("UScriptStruct"), false, true },
+            {STR("UWorld"), false, true },
+            {STR("UFunction"), false, true },
+            {STR("UClass"), false, true },
+            {STR("UEnum"), false, true },
+            {STR("FStructProperty"), false, true },
+            {STR("UStructProperty"), false, true },
+            {STR("FArrayProperty"), false, true },
+            {STR("UArrayProperty"), false, true },
+            {STR("FMapProperty"), false, true },
+            {STR("UMapProperty"), false, true },
+            {STR("FBoolProperty"), false, true },
+            {STR("UBoolProperty"), false, true },
+            {STR("FByteProperty"), false, true },
+            {STR("UByteProperty"), false, true },
+            {STR("FEnumProperty"), false, true },
+            {STR("UEnumProperty"), false, true },
+            {STR("FClassProperty"), false, true },
+            {STR("UClassProperty"), false, true },
+            {STR("FSoftClassProperty"), false, true },
+            {STR("USoftClassProperty"), false, true },
+            {STR("FDelegateProperty"), false, true },
+            {STR("UDelegateProperty"), false, true },
+            {STR("FInterfaceProperty"), false, true },
+            {STR("UInterfaceProperty"), false, true },
+            {STR("FFieldPathProperty"), false, true },
+            {STR("FSetProperty"), false, true },
+            {STR("USetProperty"), false, true },
     };
 
     static inline std::unordered_map<File::StringType, std::unordered_set<File::StringType>> s_private_variables{
@@ -221,5 +245,18 @@ namespace RC::UVTD
     auto to_string_type(const char* c_str) -> File::StringType;
     auto change_prefix(File::StringType input, bool is_425_plus) -> std::optional<File::StringType>;
 }
+
+template <>
+struct glz::meta<RC::UVTD::SettingsManager::UVTDSettings>
+{
+        using T = RC::UVTD::SettingsManager::UVTDSettings;
+        static constexpr auto value = object(
+                                             "ObjectsToDump", &T::ObjectsToDump/*,
+                                             "ValidUDTNames", &T::ValidUDTNames,
+                                             "TypesToSkip", &T::TypesToSkip,
+                                             "PrivateVariables", &T::PrivateVariables,
+                                             "UPrefixToFPrefix", &T::UPrefixToFPrefix*/
+                                             );
+};
 
 #endif
