@@ -53,18 +53,6 @@ namespace RC::File
     using StreamType = std::wifstream;
 
     constexpr auto ToString = [](auto&& numeric_value) constexpr -> decltype(auto) { return std::to_wstring(std::forward<decltype(numeric_value)>(numeric_value)); };
-
-    auto inline to_generic_string(const auto& input) -> StringType
-    {
-        if constexpr (std::is_same_v<std::remove_cvref_t<std::remove_pointer_t<std::remove_cvref_t<decltype(input)>>>, StringType> || std::is_same_v<std::remove_cvref_t<std::remove_pointer_t<std::remove_cvref_t<decltype(input)>>>, CharType>)
-        {
-            return input;
-        }
-        else
-        {
-            return to_string(input);
-        }
-    }
 #endif
 }
 
