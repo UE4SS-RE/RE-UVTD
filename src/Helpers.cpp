@@ -55,6 +55,16 @@ namespace RC::UVTD
             if (pe)
             {
                 std::string descriptive_error = glz::format_error(pe, buffer);
+
+                size_t count = descriptive_error.size() + 1;
+                wchar_t* converted_method_name = new wchar_t[count];
+
+                size_t num_of_char_converted = 0;
+                mbstowcs_s(&num_of_char_converted, converted_method_name, count, descriptive_error.data(), count);
+
+                auto converted = File::StringViewType(converted_method_name);
+
+                delete[] converted_method_name;
                 
                 Output::send<LogLevel::Error>(STR("{}\n\nError parsing settings file, please fix the file.\n"), to_generic_string(descriptive_error));
             }

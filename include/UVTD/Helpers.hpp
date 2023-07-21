@@ -13,7 +13,6 @@
 
 #define NOMINMAX
 #include <Windows.h>
-#include <Helpers/String.hpp>
 #undef NOMINMAX
 
 namespace RC::UVTD
@@ -36,12 +35,26 @@ namespace RC::UVTD
         
     struct ObjectItem
     {
-        std::string ObjectName{};
+        File::StringType ObjectName{};
         bool ValidForVTable{ true };
         bool ValidForMemberVar{ true };
     };
 
-    
+    class SettingsManager
+    {
+    public:
+            struct UVTDSettings
+            {
+                        std::vector<ObjectItem> ObjectsToDump = s_object_items;
+                    /*std::unordered_set<File::StringType> ValidUDTNames{};
+                    std::vector<File::StringType> TypesToSkip{};
+                    std::unordered_map<File::StringType, std::unordered_set<File::StringType>> PrivateVariables{};
+                    std::vector<File::StringType> UPrefixToFPrefix{};*/
+            };
+
+            static void Read_Settings();
+
+    };
 
     
 
@@ -49,86 +62,70 @@ namespace RC::UVTD
     // TODO: UConsole isn't found in all PDBs by this tool for some reason. Fix it.
     //       For now, to avoid problems, let's not generate for UConsole.
     static inline std::vector<ObjectItem> s_object_items{
-            {("UObjectBase"), true, true },
-            {("UObjectBaseUtility"), true, false },
-            {("UObject"), true, false },
-            {("UScriptStruct::ICppStructOps"), true, true },
-            {("FOutputDevice"), true, true },
-            {("UStruct"), true, true },
-            {("UGameViewportClient"), true, true },
-            {("UConsole"), true, true },
-            {("FMalloc"), true, true },
-            {("FArchive"), true, true },
-            {("FArchiveState"), true, true },
-            {("AGameModeBase"), true, true },
-            {("AGameMode"), true, true },
-            {("AActor"), true, true },
-            {("AHUD"), true, true },
-            {("UPlayer"), true, true },
-            {("ULocalPlayer"), true, true },
-            {("FExec"), true, false },
-            {("FField"), true, true },
-            {("UField"), true, true },
-            {("FProperty"), true, true },
-            {("UProperty"), true, true },
-            {("FNumericProperty"), true, true },
-            {("UNumericProperty"), true, true },
-            {("FMulticastDelegateProperty"), true, true },
-            {("UMulticastDelegateProperty"), true, true },
-            {("FObjectPropertyBase"), true, true },
-            {("UObjectPropertyBase"), true, true },
-            {("UGameEngine"), true, true },
-            {("UEngine"), true, true },
-            /*{("FConsoleManager"), true, true },
-            {("UDataTable"), true, true },
-            {("FConsoleVariableBase"), true, true },
-            {("FConsoleCommandBase"), true, true },*/
+            {STR("UObjectBase"), true, true },
+            {STR("UObjectBaseUtility"), true, false },
+            {STR("UObject"), true, false },
+            {STR("UScriptStruct::ICppStructOps"), true, true },
+            {STR("FOutputDevice"), true, true },
+            {STR("UStruct"), true, true },
+            {STR("UGameViewportClient"), true, true },
+            {STR("UConsole"), true, true },
+            {STR("FMalloc"), true, true },
+            {STR("FArchive"), true, true },
+            {STR("FArchiveState"), true, true },
+            {STR("AGameModeBase"), true, true },
+            {STR("AGameMode"), true, true },
+            {STR("AActor"), true, true },
+            {STR("AHUD"), true, true },
+            {STR("UPlayer"), true, true },
+            {STR("ULocalPlayer"), true, true },
+            {STR("FExec"), true, false },
+            {STR("FField"), true, true },
+            {STR("UField"), true, true },
+            {STR("FProperty"), true, true },
+            {STR("UProperty"), true, true },
+            {STR("FNumericProperty"), true, true },
+            {STR("UNumericProperty"), true, true },
+            {STR("FMulticastDelegateProperty"), true, true },
+            {STR("UMulticastDelegateProperty"), true, true },
+            {STR("FObjectPropertyBase"), true, true },
+            {STR("UObjectPropertyBase"), true, true },
+            {STR("UGameEngine"), true, true },
+            {STR("UEngine"), true, true },
+            /*{STR("FConsoleManager"), true, true },
+            {STR("UDataTable"), true, true },
+            {STR("FConsoleVariableBase"), true, true },
+            {STR("FConsoleCommandBase"), true, true },*/
 
-            {("UScriptStruct"), false, true },
-            {("UWorld"), false, true },
-            {("UFunction"), false, true },
-            {("UClass"), false, true },
-            {("UEnum"), false, true },
-            {("FStructProperty"), false, true },
-            {("UStructProperty"), false, true },
-            {("FArrayProperty"), false, true },
-            {("UArrayProperty"), false, true },
-            {("FMapProperty"), false, true },
-            {("UMapProperty"), false, true },
-            {("FBoolProperty"), false, true },
-            {("UBoolProperty"), false, true },
-            {("FByteProperty"), false, true },
-            {("UByteProperty"), false, true },
-            {("FEnumProperty"), false, true },
-            {("UEnumProperty"), false, true },
-            {("FClassProperty"), false, true },
-            {("UClassProperty"), false, true },
-            {("FSoftClassProperty"), false, true },
-            {("USoftClassProperty"), false, true },
-            {("FDelegateProperty"), false, true },
-            {("UDelegateProperty"), false, true },
-            {("FInterfaceProperty"), false, true },
-            {("UInterfaceProperty"), false, true },
-            {("FFieldPathProperty"), false, true },
-            {("FSetProperty"), false, true },
-            {("USetProperty"), false, true },
+            {STR("UScriptStruct"), false, true },
+            {STR("UWorld"), false, true },
+            {STR("UFunction"), false, true },
+            {STR("UClass"), false, true },
+            {STR("UEnum"), false, true },
+            {STR("FStructProperty"), false, true },
+            {STR("UStructProperty"), false, true },
+            {STR("FArrayProperty"), false, true },
+            {STR("UArrayProperty"), false, true },
+            {STR("FMapProperty"), false, true },
+            {STR("UMapProperty"), false, true },
+            {STR("FBoolProperty"), false, true },
+            {STR("UBoolProperty"), false, true },
+            {STR("FByteProperty"), false, true },
+            {STR("UByteProperty"), false, true },
+            {STR("FEnumProperty"), false, true },
+            {STR("UEnumProperty"), false, true },
+            {STR("FClassProperty"), false, true },
+            {STR("UClassProperty"), false, true },
+            {STR("FSoftClassProperty"), false, true },
+            {STR("USoftClassProperty"), false, true },
+            {STR("FDelegateProperty"), false, true },
+            {STR("UDelegateProperty"), false, true },
+            {STR("FInterfaceProperty"), false, true },
+            {STR("UInterfaceProperty"), false, true },
+            {STR("FFieldPathProperty"), false, true },
+            {STR("FSetProperty"), false, true },
+            {STR("USetProperty"), false, true },
     };
-
-        class SettingsManager
-        {
-        public:
-                struct UVTDSettings
-                {
-                        std::vector<ObjectItem> ObjectsToDump = s_object_items;
-                        /*std::unordered_set<File::StringType> ValidUDTNames{};
-                        std::vector<File::StringType> TypesToSkip{};
-                        std::unordered_map<File::StringType, std::unordered_set<File::StringType>> PrivateVariables{};
-                        std::vector<File::StringType> UPrefixToFPrefix{};*/
-                };
-
-                static void Read_Settings();
-
-        };
 
     static inline std::unordered_map<File::StringType, std::unordered_set<File::StringType>> s_private_variables{
             {
