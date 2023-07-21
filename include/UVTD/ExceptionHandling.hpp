@@ -21,7 +21,7 @@ namespace RC
         {
             if (!Output::has_internal_error())
             {
-                Output::send(STR("Error: {}\n"), to_wstring(e.what()));
+                Output::send(STR("Error: {}\n"), to_generic_string(e.what()));
             }
             else
             {

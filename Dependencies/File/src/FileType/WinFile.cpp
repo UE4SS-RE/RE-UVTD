@@ -44,6 +44,8 @@ namespace RC::File
 
     auto WinFile::delete_file() -> void
     {
+        if (!std::filesystem::exists(m_file_path_and_name)) { return; }
+
         if (m_is_file_open)
         {
             close_file();
@@ -339,6 +341,7 @@ namespace RC::File
 
     auto WinFile::write_string_to_file(StringViewType string_to_write) -> void
     {
+#if RC_IS_ANSI != 1
         int string_size = WideCharToMultiByte(CP_UTF8, 0, string_to_write.data(), static_cast<int>(string_to_write.size()), NULL, 0, NULL, NULL);
         if (string_size == 0)
         {
@@ -352,6 +355,9 @@ namespace RC::File
         }
 
         write_to_file(*this, string_converted_to_utf8.c_str(), string_size);
+#else
+        write_to_file(*this, string_to_write.data(), string_to_write.size());
+#endif
     }
 
     auto WinFile::is_same_as(WinFile& other_file) -> bool

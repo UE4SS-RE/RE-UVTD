@@ -78,7 +78,11 @@ namespace RC::Output
 #if ENABLE_OUTPUT_DEVICE_DEBUG_MODE
         printf_s("DebugConsoleDevice received: %S", m_formatter(fmt).c_str());
 #else
+#if RC_IS_ANSI != 1
         printf_s("%S", m_formatter(fmt).c_str());
+#else
+        printf_s("%s", m_formatter(fmt).c_str());
+#endif
 #endif
 #endif
     }

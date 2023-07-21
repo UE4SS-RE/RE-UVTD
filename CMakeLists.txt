@@ -40,6 +40,8 @@ set(UVTD_COMPILE_DEFINITIONS
         RC_JSON_BUILD_STATIC
         )
 
+add_compile_definitions(RC_IS_ANSI=1)
+
 add_subdirectory("Dependencies/File")
 add_subdirectory("Dependencies/Input")
 add_subdirectory("Dependencies/DynamicOutput")
@@ -49,8 +51,8 @@ add_subdirectory("Dependencies/glaze")
 add_subdirectory("Dependencies/raw_pdb")
 
 # Tell WinAPI macros to map to unicode functions instead of ansi
-add_compile_definitions(_UNICODE)
-add_compile_definitions(UNICODE)
+#add_compile_definitions(_UNICODE)
+#add_compile_definitions(UNICODE)
 
 set(${TARGET}_Sources
         "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"

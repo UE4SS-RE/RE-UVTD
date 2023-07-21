@@ -52,7 +52,7 @@ auto thread_dll_start([[maybe_unused]]LPVOID thread_param) -> unsigned long
 
     Output::set_default_devices<Output::DebugConsoleDevice, Output::NewFileDevice>();
     auto& file_device = Output::get_device<Output::NewFileDevice>();
-    file_device.set_file_name_and_path(module_path / "UVTD.log");
+    file_device.set_file_name_and_path((module_path / "UVTD.log").string());
     UVTD::SettingsManager::Read_Settings();
     
 
@@ -98,7 +98,7 @@ auto thread_dll_start([[maybe_unused]]LPVOID thread_param) -> unsigned long
     }
     catch (std::exception& e)
     {
-        Output::send(STR("Exception caught: {}\n"), to_wstring(e.what()));
+        Output::send(STR("Exception caught: {}\n"), to_generic_string(e.what()));
     }
 
     return 0;

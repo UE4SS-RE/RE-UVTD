@@ -136,7 +136,7 @@ namespace RC::UVTD
 
     auto VTableDumper::dump_vtable_for_symbol(std::unordered_map<File::StringType, SymbolNameInfo>& names) -> void
     {
-        Output::send(STR("Dumping {} struct symbols for {}\n"), names.size(), symbols.pdb_file_path.filename().stem().wstring());
+        Output::send(STR("Dumping {} struct symbols for {}\n"), names.size(), symbols.pdb_file_path.filename().stem().string());
 
         const PDB::TPIStream tpi_stream = PDB::CreateTPIStream(symbols.pdb_file);
 
@@ -165,7 +165,7 @@ namespace RC::UVTD
         {
             if (!object_item.ValidForVTable) continue;
             
-            vtable_names.emplace(to_wstring(object_item.ObjectName), SymbolNameInfo{ object_item.ValidForVTable, object_item.ValidForMemberVar });
+            vtable_names.emplace(to_generic_string(object_item.ObjectName), SymbolNameInfo{ object_item.ValidForVTable, object_item.ValidForMemberVar });
         }
 
         dump_vtable_for_symbol(vtable_names);
@@ -173,14 +173,14 @@ namespace RC::UVTD
 
     auto VTableDumper::generate_files() -> void
     {
-        File::StringType pdb_name = symbols.pdb_file_path.filename().stem();
+        File::StringType pdb_name = symbols.pdb_file_path.filename().stem().string();
 
         for (const auto& [class_name, class_entry] : type_container.get_class_entries())
         {
             Output::send(STR("Generating file '{}_VTableOffsets_{}_FunctionBody.cpp'\n"), pdb_name, class_entry.class_name_clean);
             Output::Targets<Output::NewFileDevice> function_body_dumper;
             auto& function_body_file_device = function_body_dumper.get_device<Output::NewFileDevice>();
-            function_body_file_device.set_file_name_and_path(vtable_gen_output_function_bodies_path / std::format(STR("{}_VTableOffsets_{}_FunctionBody.cpp"), pdb_name, class_name));
+            function_body_file_device.set_file_name_and_path((vtable_gen_output_function_bodies_path / std::format(STR("{}_VTableOffsets_{}_FunctionBody.cpp"), pdb_name, class_name)).string());
             function_body_file_device.set_formatter([](File::StringViewType string) {
                 return File::StringType{ string };
             });
@@ -204,7 +204,7 @@ namespace RC::UVTD
         Output::send(STR("Generating file '{}'\n"), template_file);
         Output::Targets<Output::NewFileDevice> ini_dumper;
         auto& ini_file_device = ini_dumper.get_device<Output::NewFileDevice>();
-        ini_file_device.set_file_name_and_path(vtable_templates_output_path / template_file);
+        ini_file_device.set_file_name_and_path((vtable_templates_output_path / template_file).string());
         ini_file_device.set_formatter([](File::StringViewType string) {
             return File::StringType{ string };
         });

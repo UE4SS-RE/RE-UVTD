@@ -165,6 +165,26 @@ namespace RC
 #pragma warning(default: 4244)
     }
 
+    auto inline to_generic_string(const auto& input) -> StringType
+    {
+        if constexpr (std::is_same_v<std::remove_cvref_t<std::remove_pointer_t<std::remove_cvref_t<decltype(input)>>>, StringViewType>)
+        {
+            return StringType{input};
+        }
+        else if constexpr (std::is_same_v<std::remove_cvref_t<std::remove_pointer_t<std::remove_cvref_t<decltype(input)>>>, StringType> || std::is_same_v<std::remove_cvref_t<std::remove_pointer_t<std::remove_cvref_t<decltype(input)>>>, CharType>)
+        {
+            return input;
+        }
+        else
+        {
+#if RC_IS_ANSI == 1
+            return to_string(input);
+#else
+            return to_wstring(input);
+#endif
+        }
+    }
+
     namespace String
     {
         auto inline iequal(std::wstring_view a, std::wstring_view b)

@@ -136,7 +136,7 @@ namespace RC::UVTD
 
     auto MemberVarsDumper::dump_member_variable_layouts(std::unordered_map<File::StringType, SymbolNameInfo>& names) -> void
     {
-        Output::send(STR("Dumping {} symbols for {}\n"), names.size(), symbols.pdb_file_path.filename().stem().wstring());
+        Output::send(STR("Dumping {} symbols for {}\n"), names.size(), symbols.pdb_file_path.filename().stem().string());
 
         const PDB::TPIStream tpi_stream = PDB::CreateTPIStream(symbols.pdb_file);
 
@@ -166,7 +166,7 @@ namespace RC::UVTD
         for (ObjectItem& item : s_object_items)
         {
             if (!item.ValidForMemberVar) continue;
-            member_vars_names.emplace(to_wstring(item.ObjectName), SymbolNameInfo{ item.ValidForVTable, item.ValidForMemberVar });
+            member_vars_names.emplace(to_generic_string(item.ObjectName), SymbolNameInfo{ item.ValidForVTable, item.ValidForMemberVar });
         }
 
         dump_member_variable_layouts(member_vars_names);
@@ -174,15 +174,15 @@ namespace RC::UVTD
 
     auto MemberVarsDumper::generate_files() -> void
     {
-        File::StringType pdb_name = symbols.pdb_file_path.filename().stem();
+        File::StringType pdb_name = symbols.pdb_file_path.filename().stem().string();
 
         auto default_template_file = std::filesystem::path{ STR("MemberVariableLayout.ini") };
 
-        Output::send(STR("Generating file '{}'\n"), default_template_file.wstring());
+        Output::send(STR("Generating file '{}'\n"), default_template_file.string());
         
         Output::Targets<Output::NewFileDevice> default_ini_dumper;
         auto& default_ini_file_device = default_ini_dumper.get_device<Output::NewFileDevice>();
-        default_ini_file_device.set_file_name_and_path(member_variable_layouts_templates_output_path / default_template_file);
+        default_ini_file_device.set_file_name_and_path((member_variable_layouts_templates_output_path / default_template_file).string());
         default_ini_file_device.set_formatter([](File::StringViewType string) {
             return File::StringType{ string };
         });
@@ -193,7 +193,7 @@ namespace RC::UVTD
         
         Output::Targets<Output::NewFileDevice> ini_dumper;
         auto& ini_file_device = ini_dumper.get_device<Output::NewFileDevice>();
-        ini_file_device.set_file_name_and_path(member_variable_layouts_templates_output_path / template_file);
+        ini_file_device.set_file_name_and_path((member_variable_layouts_templates_output_path / template_file).string());
         ini_file_device.set_formatter([](File::StringViewType string) {
             return File::StringType{ string };
         });
@@ -203,22 +203,22 @@ namespace RC::UVTD
 
         auto virtual_header_file = virtual_gen_output_include_path / std::format(STR("UnrealVirtual{}.hpp"), pdb_name_no_underscore);
 
-        Output::send(STR("Generating file '{}'\n"), virtual_header_file.wstring());
+        Output::send(STR("Generating file '{}'\n"), virtual_header_file.string());
         
         Output::Targets<Output::NewFileDevice> virtual_header_dumper;
         auto& virtual_header_file_device = virtual_header_dumper.get_device<Output::NewFileDevice>();
-        virtual_header_file_device.set_file_name_and_path(virtual_header_file);
+        virtual_header_file_device.set_file_name_and_path(virtual_header_file.string());
         virtual_header_file_device.set_formatter([](File::StringViewType string) {
             return File::StringType{ string };
         });
 
         auto virtual_src_file = virtual_gen_function_bodies_path / std::format(STR("UnrealVirtual{}.cpp"), pdb_name_no_underscore);
 
-        Output::send(STR("Generating file '{}'\n"), virtual_src_file.wstring());
+        Output::send(STR("Generating file '{}'\n"), virtual_src_file.string());
         
         Output::Targets<Output::NewFileDevice> virtual_src_dumper;
         auto& virtual_src_file_device = virtual_src_dumper.get_device<Output::NewFileDevice>();
-        virtual_src_file_device.set_file_name_and_path(virtual_src_file);
+        virtual_src_file_device.set_file_name_and_path(virtual_src_file.string());
         virtual_src_file_device.set_formatter([](File::StringViewType string) {
             return File::StringType{ string };
         });
@@ -289,11 +289,11 @@ namespace RC::UVTD
 
             auto default_setter_src_file = member_variable_layouts_gen_function_bodies_path / std::format(STR("{}_MemberVariableLayout_DefaultSetter_{}.cpp"), pdb_name, class_entry.class_name_clean);
             
-            Output::send(STR("Generating file '{}'\n"), default_setter_src_file.wstring());
+            Output::send(STR("Generating file '{}'\n"), default_setter_src_file.string());
             
             Output::Targets<Output::NewFileDevice> default_setter_src_dumper;
             auto& default_setter_src_file_device = default_setter_src_dumper.get_device<Output::NewFileDevice>();
-            default_setter_src_file_device.set_file_name_and_path(default_setter_src_file);
+            default_setter_src_file_device.set_file_name_and_path(default_setter_src_file.string());
             default_setter_src_file_device.set_formatter([](File::StringViewType string) {
                 return File::StringType{ string };
             });

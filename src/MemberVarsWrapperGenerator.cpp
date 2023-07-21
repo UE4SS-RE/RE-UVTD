@@ -10,11 +10,11 @@ namespace RC::UVTD
     {
         auto macro_setter_file = std::filesystem::path{ STR("MacroSetter.hpp") };
 
-        Output::send(STR("Generating file '{}'\n"), macro_setter_file.wstring());
+        Output::send(STR("Generating file '{}'\n"), macro_setter_file.string());
 
         Output::Targets<Output::NewFileDevice> macro_setter_dumper;
         auto& macro_setter_file_device = macro_setter_dumper.get_device<Output::NewFileDevice>();
-        macro_setter_file_device.set_file_name_and_path(macro_setter_file);
+        macro_setter_file_device.set_file_name_and_path(macro_setter_file.string());
         macro_setter_file_device.set_formatter([](File::StringViewType string) {
             return File::StringType{ string };
             });
@@ -25,22 +25,22 @@ namespace RC::UVTD
 
             auto wrapper_header_file = member_variable_layouts_gen_output_include_path / std::format(STR("MemberVariableLayout_HeaderWrapper_{}.hpp"), class_entry.class_name_clean);
 
-            Output::send(STR("Generating file '{}'\n"), wrapper_header_file.wstring());
+            Output::send(STR("Generating file '{}'\n"), wrapper_header_file.string());
 
             Output::Targets<Output::NewFileDevice> header_wrapper_dumper;
             auto& wrapper_header_file_device = header_wrapper_dumper.get_device<Output::NewFileDevice>();
-            wrapper_header_file_device.set_file_name_and_path(wrapper_header_file);
+            wrapper_header_file_device.set_file_name_and_path(wrapper_header_file.string());
             wrapper_header_file_device.set_formatter([](File::StringViewType string) {
                 return File::StringType{ string };
                 });
 
             auto wrapper_src_file = member_variable_layouts_gen_output_include_path / std::format(STR("MemberVariableLayout_SrcWrapper_{}.hpp"), class_entry.class_name_clean);
 
-            Output::send(STR("Generating file '{}'\n"), wrapper_src_file.wstring());
+            Output::send(STR("Generating file '{}'\n"), wrapper_src_file.string());
 
             Output::Targets<Output::NewFileDevice> wrapper_src_dumper;
             auto& wrapper_src_file_device = wrapper_src_dumper.get_device<Output::NewFileDevice>();
-            wrapper_src_file_device.set_file_name_and_path(wrapper_src_file);
+            wrapper_src_file_device.set_file_name_and_path(wrapper_src_file.string());
             wrapper_src_file_device.set_formatter([](File::StringViewType string) {
                 return File::StringType{ string };
                 });

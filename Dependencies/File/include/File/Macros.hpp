@@ -11,7 +11,7 @@
 
 
 #if RC_IS_ANSI == 1
-#define STR(str) u##str
+#define STR(str) str
 #else
 #define STR(str) L##str
 #endif
@@ -44,7 +44,6 @@ namespace RC::File
     using StringViewType = std::string_view;
     using CharType = char;
     using StreamType = std::ifstream;
-    using ToString = std::tostring;
 
     constexpr auto ToString = [](auto&& numeric_value) constexpr -> decltype(auto) { return std::to_string(std::forward<decltype(numeric_value)>(numeric_value)); };
 #else
@@ -54,6 +53,18 @@ namespace RC::File
     using StreamType = std::wifstream;
 
     constexpr auto ToString = [](auto&& numeric_value) constexpr -> decltype(auto) { return std::to_wstring(std::forward<decltype(numeric_value)>(numeric_value)); };
+
+    auto inline to_generic_string(const auto& input) -> StringType
+    {
+        if constexpr (std::is_same_v<std::remove_cvref_t<std::remove_pointer_t<std::remove_cvref_t<decltype(input)>>>, StringType> || std::is_same_v<std::remove_cvref_t<std::remove_pointer_t<std::remove_cvref_t<decltype(input)>>>, CharType>)
+        {
+            return input;
+        }
+        else
+        {
+            return to_string(input);
+        }
+    }
 #endif
 }
 

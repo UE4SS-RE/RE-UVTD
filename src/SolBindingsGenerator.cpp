@@ -28,12 +28,12 @@ namespace RC::UVTD
 
             auto wrapper_header_file = sol_bindings_output_path / std::format(STR("SolBindings_{}.hpp"), final_class_name_clean);
             
-            Output::send(STR("Generating file '{}'\n"), wrapper_header_file.wstring());
+            Output::send(STR("Generating file '{}'\n"), wrapper_header_file.string());
 
             Output::Targets<Output::NewFileDevice> header_wrapper_dumper;
 
             auto& wrapper_header_file_device = header_wrapper_dumper.get_device<Output::NewFileDevice>();
-            wrapper_header_file_device.set_file_name_and_path(wrapper_header_file);
+            wrapper_header_file_device.set_file_name_and_path(wrapper_header_file.string());
             wrapper_header_file_device.set_formatter([](File::StringViewType string) {
                 return File::StringType{ string };
             });

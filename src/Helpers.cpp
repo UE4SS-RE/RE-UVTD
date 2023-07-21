@@ -56,7 +56,7 @@ namespace RC::UVTD
             {
                 std::string descriptive_error = glz::format_error(pe, buffer);
                 
-                Output::send<LogLevel::Error>(STR("{}\n\nError parsing settings file, please fix the file.\n"),  to_wstring(descriptive_error));
+                Output::send<LogLevel::Error>(STR("{}\n\nError parsing settings file, please fix the file.\n"), to_generic_string(descriptive_error));
             }
             Output::send<LogLevel::Default>(STR("Settings read.\n"));
         }
@@ -68,9 +68,8 @@ namespace RC::UVTD
             {
                 auto arr = glz::detail::make_enum_to_string_array<glz::error_code>();
                 auto error_type_str = arr[static_cast<uint32_t>(ec)];
-                
-                
-                Output::send<LogLevel::Error>(STR("\nError {} when writing new settings file.\n"), to_wstring(error_type_str));
+
+                Output::send<LogLevel::Error>(STR("\nError {} when writing new settings file.\n"), to_generic_string(error_type_str));
             }
             Output::send<LogLevel::Default>(STR("Settings created. Please close the program and add settings options.\n"));
         }   
