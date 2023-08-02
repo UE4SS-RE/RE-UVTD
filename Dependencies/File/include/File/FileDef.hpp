@@ -19,6 +19,6 @@ namespace RC::File
 #endif
 #endif
 
-}
+} // namespace RC::File
 
-#endif //RC_FILE_FILEDEF_HPP
+#endif // RC_FILE_FILEDEF_HPP

@@ -3,4 +3,4 @@
 
 #include <File/FileType/WinFile.hpp>
 
-#endif //RC_FILE_FILETYPE_ALL_HPP
+#endif // RC_FILE_FILETYPE_ALL_HPP

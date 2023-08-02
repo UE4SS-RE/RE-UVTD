@@ -1,8 +1,8 @@
 #ifndef RC_STRING_HPP
 #define RC_STRING_HPP
 
-#include <string>
 #include <cwctype>
+#include <string>
 #include <vector>
 
 namespace RC
@@ -62,7 +62,10 @@ namespace RC
         for (int64_t i = 0; i < std::count(in_str.begin(), in_str.end(), delimiter); i++)
         {
             found_occurrence = in_str.find(delimiter, found_occurrence + 1);
-            if (i + 1 == occurrence) { return in_str.substr(0, found_occurrence); }
+            if (i + 1 == occurrence)
+            {
+                return in_str.substr(0, found_occurrence);
+            }
         }
 
         // No occurrence was found, returning empty string for now
@@ -129,7 +132,10 @@ namespace RC
         for (int64_t i = 0; i < std::count(in_str.begin(), in_str.end(), delimiter); i++)
         {
             found_occurrence = in_str.find(delimiter, found_occurrence + 1);
-            if (i + 1 == occurrence) { return in_str.substr(0, found_occurrence); }
+            if (i + 1 == occurrence)
+            {
+                return in_str.substr(0, found_occurrence);
+            }
         }
 
         // No occurrence was found, returning empty string for now
@@ -139,30 +145,30 @@ namespace RC
 
     auto inline to_wstring(std::string& input) -> std::wstring
     {
-#pragma warning(disable: 4244)
+#pragma warning(disable : 4244)
         return std::wstring{input.begin(), input.end()};
-#pragma warning(default: 4244)
+#pragma warning(default : 4244)
     }
 
     auto inline to_wstring(std::string_view input) -> std::wstring
     {
-#pragma warning(disable: 4244)
+#pragma warning(disable : 4244)
         return std::wstring{input.begin(), input.end()};
-#pragma warning(default: 4244)
+#pragma warning(default : 4244)
     }
 
     auto inline to_string(std::wstring& input) -> std::string
     {
-#pragma warning(disable: 4244)
+#pragma warning(disable : 4244)
         return std::string{input.begin(), input.end()};
-#pragma warning(default: 4244)
+#pragma warning(default : 4244)
     }
 
     auto inline to_string(std::wstring_view input) -> std::string
     {
-#pragma warning(disable: 4244)
+#pragma warning(disable : 4244)
         return std::string{input.begin(), input.end()};
-#pragma warning(default: 4244)
+#pragma warning(default : 4244)
     }
 
     namespace String
@@ -170,8 +176,8 @@ namespace RC
         auto inline iequal(std::wstring_view a, std::wstring_view b)
         {
             return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin(), [](const wchar_t a_char, const wchar_t b_char) {
-                return std::towlower(a_char) == std::towlower(b_char);
-            });
+                       return std::towlower(a_char) == std::towlower(b_char);
+                   });
         }
 
         auto inline iequal(std::wstring& a, const wchar_t* b)
@@ -187,8 +193,8 @@ namespace RC
         auto inline iequal(std::string_view a, std::string_view b)
         {
             return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin(), [](const char a_char, const char b_char) {
-                return (std::tolower(a_char) == std::tolower(b_char));
-            });
+                       return (std::tolower(a_char) == std::tolower(b_char));
+                   });
         }
 
         auto inline iequal(std::string& a, const char* b)
@@ -200,7 +206,7 @@ namespace RC
         {
             return iequal(std::string_view{a}, b);
         }
-    }
-}
+    } // namespace String
+} // namespace RC
 
-#endif //RC_STRING_HPP
+#endif // RC_STRING_HPP

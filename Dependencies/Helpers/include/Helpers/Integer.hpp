@@ -1,14 +1,14 @@
 #ifndef RC_INTEGER_HPP
 #define RC_INTEGER_HPP
 
-#include <cstdint>
 #include <concepts>
+#include <cstdint>
 #include <limits>
 #include <stdexcept>
 
 namespace RC::Helper::Integer
 {
-    template<std::integral IntTo, std::integral IntFrom>
+    template <std::integral IntTo, std::integral IntFrom>
     auto to(IntFrom from) -> IntTo
     {
         static constexpr const char* error_message{"Tried converting integer to another integral type but it was too big or too small for the resulting type"};
@@ -38,6 +38,6 @@ namespace RC::Helper::Integer
             }
         }
     }
-}
+} // namespace RC::Helper::Integer
 
-#endif //RC_INTEGER_HPP
+#endif // RC_INTEGER_HPP

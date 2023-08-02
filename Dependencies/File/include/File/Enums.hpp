@@ -35,6 +35,6 @@ namespace RC::File
         UnsignedLongLong,
         SignedLongLong,
     };
-}
+} // namespace RC::File
 
-#endif //RC_FILE_ENUMS_HPP
+#endif // RC_FILE_ENUMS_HPP

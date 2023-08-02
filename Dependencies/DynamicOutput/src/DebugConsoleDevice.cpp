@@ -25,7 +25,7 @@ namespace RC::Output
         receive_with_optional_arg(fmt, Color::NoColor);
     }
 
-    auto DebugConsoleDevice::receive_with_optional_arg(File::StringViewType fmt, [[maybe_unused]]int32_t optional_arg) const -> void
+    auto DebugConsoleDevice::receive_with_optional_arg(File::StringViewType fmt, [[maybe_unused]] int32_t optional_arg) const -> void
     {
 #ifdef UE4SS_CONSOLE_COLORS_ENABLED
 #if ENABLE_OUTPUT_DEVICE_DEBUG_MODE
@@ -41,27 +41,27 @@ namespace RC::Output
 
         switch (color_enum)
         {
-            case Color::Default:
-            case Color::NoColor:
-                break;
-            case Color::Cyan:
-                text_attributes = FOREGROUND_BLUE | FOREGROUND_GREEN;
-                break;
-            case Color::Yellow:
-                text_attributes = FOREGROUND_RED | FOREGROUND_GREEN;
-                break;
-            case Color::Red:
-                text_attributes = FOREGROUND_RED;
-                break;
-            case Color::Green:
-                text_attributes = FOREGROUND_GREEN;
-                break;
-            case Color::Blue:
-                text_attributes = 9;
-                break;
-            case Color::Magenta:
-                text_attributes = FOREGROUND_BLUE | FOREGROUND_RED;
-                break;
+        case Color::Default:
+        case Color::NoColor:
+            break;
+        case Color::Cyan:
+            text_attributes = FOREGROUND_BLUE | FOREGROUND_GREEN;
+            break;
+        case Color::Yellow:
+            text_attributes = FOREGROUND_RED | FOREGROUND_GREEN;
+            break;
+        case Color::Red:
+            text_attributes = FOREGROUND_RED;
+            break;
+        case Color::Green:
+            text_attributes = FOREGROUND_GREEN;
+            break;
+        case Color::Blue:
+            text_attributes = 9;
+            break;
+        case Color::Magenta:
+            text_attributes = FOREGROUND_BLUE | FOREGROUND_RED;
+            break;
         }
 
         if (color_enum != Color::NoColor)
@@ -96,4 +96,4 @@ namespace RC::Output
         m_receive_mutex.unlock();
 #endif
     }
-}
+} // namespace RC::Output

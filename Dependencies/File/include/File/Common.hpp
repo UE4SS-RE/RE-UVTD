@@ -17,4 +17,4 @@
 #endif
 #endif
 
-#endif //RC_FILE_COMMON_HPP
+#endif // RC_FILE_COMMON_HPP
