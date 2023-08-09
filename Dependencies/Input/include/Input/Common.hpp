@@ -17,4 +17,4 @@
 #endif
 #endif
 
-#endif //RC_INPUT_COMMON_HPP
+#endif // RC_INPUT_COMMON_HPP

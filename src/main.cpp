@@ -1,5 +1,5 @@
-#include <iostream>
 #include <filesystem>
+#include <iostream>
 
 #include <DynamicOutput/DynamicOutput.hpp>
 #include <Helpers/String.hpp>
@@ -33,7 +33,7 @@ auto static get_user_selection() -> int32_t
 }
 
 // We're outside DllMain here
-auto thread_dll_start([[maybe_unused]]LPVOID thread_param) -> unsigned long
+auto thread_dll_start([[maybe_unused]] LPVOID thread_param) -> unsigned long
 {
 
     std::filesystem::path module_path{};
@@ -57,6 +57,7 @@ auto thread_dll_start([[maybe_unused]]LPVOID thread_param) -> unsigned long
 
         for (int32_t selection = get_user_selection(); selection != 1337; selection = get_user_selection())
         {
+            UVTD::DumpSettings settings{};
             if (selection == 0)
             {
                 break;
@@ -64,30 +65,27 @@ auto thread_dll_start([[maybe_unused]]LPVOID thread_param) -> unsigned long
             else if (selection == 1)
             {
                 Output::send(STR("Generating VTable layouts...\n"));
-                UVTD::main(UVTD::DumpMode::VTable);
+                settings.should_dump_vtable = true;
             }
             else if (selection == 2)
             {
                 Output::send(STR("Generating class/struct member variable layouts...\n"));
-                UVTD::main(UVTD::DumpMode::MemberVars);
+                settings.should_dump_member_vars = true;
             }
             else if (selection == 3)
             {
                 Output::send(STR("Generating sol bindings...\n"));
-                UVTD::main(UVTD::DumpMode::SolBindings);
+                settings.should_dump_sol_bindings = true;
             }
             else if (selection == 4)
             {
-                Output::send(STR("Generating VTable layouts...\n"));
-                UVTD::main(UVTD::DumpMode::VTable);
+                Output::send(STR("Generating VTable layouts and class/struct member variable layouts...\n"));
+                settings.should_dump_vtable = true;
+                settings.should_dump_member_vars = true;
+            }
 
-                Output::send(STR("Generating class/struct member variable layouts...\n"));
-                UVTD::main(UVTD::DumpMode::MemberVars);
-            }
-            else if (selection == 9)
-            {
-                // Reserved for NOP, ask user again.
-            }
+            UVTD::main(settings);
+
             break;
         }
     }
@@ -118,15 +116,15 @@ auto DllMain(HMODULE hModule, DWORD ul_reason_for_call, [[maybe_unused]] LPVOID 
 {
     switch (ul_reason_for_call)
     {
-        case DLL_PROCESS_ATTACH:
-            dll_process_attached(hModule);
-            break;
-        case DLL_THREAD_ATTACH:
-            break;
-        case DLL_THREAD_DETACH:
-            break;
-        case DLL_PROCESS_DETACH:
-            break;
+    case DLL_PROCESS_ATTACH:
+        dll_process_attached(hModule);
+        break;
+    case DLL_THREAD_ATTACH:
+        break;
+    case DLL_THREAD_DETACH:
+        break;
+    case DLL_PROCESS_DETACH:
+        break;
     }
     return TRUE;
 }

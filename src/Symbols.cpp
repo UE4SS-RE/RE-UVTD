@@ -1,19 +1,18 @@
-#include <format>
 #include <algorithm>
+#include <format>
 
-#include <UVTD/Symbols.hpp>
-#include <UVTD/Helpers.hpp>
 #include <File/File.hpp>
+#include <UVTD/Helpers.hpp>
+#include <UVTD/Symbols.hpp>
+#include <UVTD/TemplateClassParser.hpp>
 
 #include <PDB.h>
 
 namespace RC::UVTD
 {
-    Symbols::Symbols(std::filesystem::path pdb_file_path) :
-        pdb_file_path(pdb_file_path),
-        pdb_file_handle(std::move(File::open(pdb_file_path))),
-        pdb_file_map(std::move(pdb_file_handle.memory_map())),
-        pdb_file(pdb_file_map.data())
+    Symbols::Symbols(std::filesystem::path pdb_file_path)
+        : pdb_file_path(pdb_file_path), pdb_file_handle(std::move(File::open(pdb_file_path))), pdb_file_map(std::move(pdb_file_handle.memory_map())),
+          pdb_file(pdb_file_map.data())
     {
         auto version_string = this->pdb_file_path.filename().stem().string();
         auto major_version = std::atoi(version_string.substr(0, 1).c_str());
@@ -22,28 +21,25 @@ namespace RC::UVTD
 
         if (!std::filesystem::exists(pdb_file_path))
         {
-            throw std::runtime_error{ std::format("PDB '{}' not found", pdb_file_path.string()) };
+            throw std::runtime_error{std::format("PDB '{}' not found", pdb_file_path.string())};
         }
 
         if (PDB::HasValidDBIStream(pdb_file) != PDB::ErrorCode::Success)
         {
-            throw std::runtime_error{ std::format("PDB '{}' doesn't contain a valid DBI stream", pdb_file_path.string()) };
+            throw std::runtime_error{std::format("PDB '{}' doesn't contain a valid DBI stream", pdb_file_path.string())};
         }
 
         if (PDB::HasValidTPIStream(pdb_file) != PDB::ErrorCode::Success)
         {
-            throw std::runtime_error{ std::format("PDB '{}' doesn't contain a valid TPI stream", pdb_file_path.string()) };
+            throw std::runtime_error{std::format("PDB '{}' doesn't contain a valid TPI stream", pdb_file_path.string())};
         }
 
         dbi_stream = PDB::CreateDBIStream(pdb_file);
     }
 
-    Symbols::Symbols(const Symbols& other) :
-        pdb_file_path(other.pdb_file_path),
-        pdb_file_handle(std::move(File::open(pdb_file_path))),
-        pdb_file_map(std::move(pdb_file_handle.memory_map())),
-        pdb_file(pdb_file_map.data()),
-        is_425_plus(other.is_425_plus)
+    Symbols::Symbols(const Symbols& other)
+        : pdb_file_path(other.pdb_file_path), pdb_file_handle(std::move(File::open(pdb_file_path))), pdb_file_map(std::move(pdb_file_handle.memory_map())),
+          pdb_file(pdb_file_map.data()), is_425_plus(other.is_425_plus)
     {
         dbi_stream = PDB::CreateDBIStream(pdb_file);
     }
@@ -60,7 +56,8 @@ namespace RC::UVTD
         return *this;
     }
 
-    auto Symbols::generate_method_signature(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* function_record, File::StringType method_name) -> MethodSignature
+    auto Symbols::generate_method_signature(const PDB::TPIStream& tpi_stream, const PDB::CodeView::TPI::Record* function_record, File::StringType method_name)
+            -> MethodSignature
     {
         MethodSignature signature{};
 
@@ -73,9 +70,7 @@ namespace RC::UVTD
         for (size_t i = 0; i < function_record->data.LF_MFUNCTION.parmcount; i++)
         {
             auto argument = Symbols::get_type_name(tpi_stream, arg_list->data.LF_ARGLIST.arg[i]);
-            signature.params.push_back(FunctionParam{
-                .type = argument
-            });
+            signature.params.push_back(FunctionParam{.type = argument});
         }
 
         if (function_record->data.LF_MFUNCTION.rvtype)
@@ -86,7 +81,7 @@ namespace RC::UVTD
         return signature;
     }
 
-    auto Symbols::get_type_name(const PDB::TPIStream& tpi_stream, uint32_t record_index) -> File::StringType
+    auto Symbols::get_type_name(const PDB::TPIStream& tpi_stream, uint32_t record_index, bool check_valid) -> File::StringType
     {
         if (record_index < tpi_stream.GetFirstTypeIndex())
         {
@@ -218,17 +213,24 @@ namespace RC::UVTD
         switch (record->header.kind)
         {
         case PDB::CodeView::TPI::TypeRecordKind::LF_CLASS:
-        case PDB::CodeView::TPI::TypeRecordKind::LF_STRUCTURE:
-            return get_leaf_name(record->data.LF_CLASS.data, record->data.LF_CLASS.lfEasy.kind);
+        case PDB::CodeView::TPI::TypeRecordKind::LF_STRUCTURE: {
+            File::StringType name = get_leaf_name(record->data.LF_CLASS.data, record->data.LF_CLASS.lfEasy.kind);
+            ParsedTemplateClass parsed = TemplateClassParser::Parse(name);
+
+            if (parsed.class_name == STR("TMap"))
+            {
+                name = STR("TMap<") + parsed.template_args[0] + STR(", ") + parsed.template_args[1] + STR(">");
+            }
+            if (check_valid && !valid_udt_names.contains(name)) return STR("void");
+            return name;
+        }
         case PDB::CodeView::TPI::TypeRecordKind::LF_ENUM:
             return to_string_type(record->data.LF_ENUM.name);
-        case PDB::CodeView::TPI::TypeRecordKind::LF_MODIFIER:
-        {
+        case PDB::CodeView::TPI::TypeRecordKind::LF_MODIFIER: {
             const auto modifier_attr = record->data.LF_MODIFIER.attr;
             std::vector<File::StringType> modifiers{};
 
-            if (modifier_attr.MOD_volatile)
-                modifiers.push_back(STR("volatile"));
+            if (modifier_attr.MOD_volatile) modifiers.push_back(STR("volatile"));
 
             File::StringType modifier_string{};
             for (const auto& modifier : modifiers)
@@ -236,31 +238,29 @@ namespace RC::UVTD
                 modifier_string += modifier + STR(" ");
             }
 
-            return modifier_string + get_type_name(tpi_stream, record->data.LF_MODIFIER.type);
+            return modifier_string + get_type_name(tpi_stream, record->data.LF_MODIFIER.type, check_valid);
         }
-        case PDB::CodeView::TPI::TypeRecordKind::LF_POINTER: 
-            return get_type_name(tpi_stream, record->data.LF_POINTER.utype) + STR("*");
+        case PDB::CodeView::TPI::TypeRecordKind::LF_POINTER:
+            return get_type_name(tpi_stream, record->data.LF_POINTER.utype, check_valid) + STR("*");
         case PDB::CodeView::TPI::TypeRecordKind::LF_MFUNCTION:
-        case PDB::CodeView::TPI::TypeRecordKind::LF_PROCEDURE:
-        {
-            auto return_type = get_type_name(tpi_stream, record->data.LF_PROCEDURE.rvtype);
-            File::StringType args = get_type_name(tpi_stream, record->data.LF_PROCEDURE.arglist);
-            return std::format(STR("Function<{}({})>"), return_type, args);
+        case PDB::CodeView::TPI::TypeRecordKind::LF_PROCEDURE: {
+            File::StringType return_type = get_type_name(tpi_stream, record->data.LF_PROCEDURE.rvtype, true);
+            File::StringType args = get_type_name(tpi_stream, record->data.LF_PROCEDURE.arglist, check_valid);
+            return std::format(STR("std::function<{}({})>"), return_type, args);
         }
-        case PDB::CodeView::TPI::TypeRecordKind::LF_ARGLIST:
-        {
+        case PDB::CodeView::TPI::TypeRecordKind::LF_ARGLIST: {
             File::StringType args{};
 
             for (size_t i = 0; i < record->data.LF_ARGLIST.count; i++)
             {
                 bool should_add_comma = i < record->data.LF_ARGLIST.count - 1;
-                args.append(std::format(STR("{}{}"), get_type_name(tpi_stream, record->data.LF_ARGLIST.arg[i]), should_add_comma ? STR(", ") : STR("")));
+                args.append(std::format(STR("{}{}"), get_type_name(tpi_stream, record->data.LF_ARGLIST.arg[i], true), should_add_comma ? STR(", ") : STR("")));
             }
 
             return args;
         }
         case PDB::CodeView::TPI::TypeRecordKind::LF_BITFIELD:
-            return get_type_name(tpi_stream, record->data.LF_BITFIELD.type);
+            return get_type_name(tpi_stream, record->data.LF_BITFIELD.type, check_valid);
         default:
             __debugbreak();
             return STR("<UNKNOWN TYPE>");
@@ -327,6 +327,6 @@ namespace RC::UVTD
     auto Symbols::is_virtual(PDB::CodeView::TPI::MemberAttributes attributes) -> bool
     {
         return attributes.mprop == (uint16_t)PDB::CodeView::TPI::MethodProperty::Intro ||
-            attributes.mprop == (uint16_t)PDB::CodeView::TPI::MethodProperty::PureIntro;
+               attributes.mprop == (uint16_t)PDB::CodeView::TPI::MethodProperty::PureIntro;
     }
-}
+} // namespace RC::UVTD

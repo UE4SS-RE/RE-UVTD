@@ -17,4 +17,4 @@
 #endif
 #endif
 
-#endif //RC_DYNAMICOUTPUT_COMMON_HPP
+#endif // RC_DYNAMICOUTPUT_COMMON_HPP
